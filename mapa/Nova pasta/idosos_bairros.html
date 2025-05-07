@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa por variável</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+        }
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: white;
+        }
+        .table-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .variables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .variable-checkbox {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+        .variable-checkbox:hover {
+            background-color: #f0f8ff;
+        }
+        .variable-checkbox input {
+            margin-right: 10px;
+        }
+        #grafico {
+            height: 600px;
+        }
+        .form-range {
+            width: 200px;
+            display: inline-block;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1 class="mb-4">Pesquisa de Variável por bairro</h1>
+        
+        <div class="control-panel">
+            <h3 class="mb-3">Selecione as Variáveis:</h3>
+            <div class="variables-grid">
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-populacao" value="populacao" 
+                        >
+                    População Total
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-percentual_idoso_populacao" value="percentual_idoso_populacao" 
+                        >
+                    % Idosos na População
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos" value="idosos" 
+                        >
+                    Idosos (60-84 anos)
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_prioridade" value="idosos_prioridade" 
+                        >
+                    Idosos Prioridade (85+ anos)
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_total" value="idosos_total" 
+                        checked>
+                    Total Idosos (60+ anos)
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_pcd" value="idosos_pcd" 
+                        >
+                    Idosos com Deficiência
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_prioridade_pcd" value="idosos_prioridade_pcd" 
+                        >
+                    Idosos Prioridade com Deficiência
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-total_idoso_pcd" value="total_idoso_pcd" 
+                        checked>
+                    Total Idosos com Deficiência
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_rf" value="idosos_rf" 
+                        >
+                    Idosos Referência Familiar
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_prioridade_rf" value="idosos_prioridade_rf" 
+                        >
+                    Idosos Prioridade Referência Familiar
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-total_idosos_rf" value="total_idosos_rf" 
+                        >
+                    Total Idosos Referência Familiar
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_unipessoal" value="idosos_unipessoal" 
+                        >
+                    Idosos que Moram Sozinhos
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-idosos_prioridade_unipessoal" value="idosos_prioridade_unipessoal" 
+                        >
+                    Idosos Prioridade que Moram Sozinhos
+                </label>
+                
+                <label class="variable-checkbox">
+                    <input type="checkbox" id="var-total_idosos_unipessoal" value="total_idosos_unipessoal" 
+                        checked>
+                    Total Idosos que Moram Sozinhos
+                </label>
+                
+            </div>
+            
+            <div class="mt-4">
+                <label for="num-bairros" class="form-label">Número de Bairros a mostrar: 
+                    <span id="num-bairros-value">5</span>
+                </label>
+                <input type="range" id="num-bairros" min="1" max="20" value="5" class="form-range">
+                <div class="col-md-6 text-end">
+                    <button onclick="updateChart()" class="btn btn-primary">Atualizar Visualização</button>
+                    <button onclick="selectAll(true)" class="btn btn-outline-secondary ms-2">Todos</button>
+                    <button onclick="selectAll(false)" class="btn btn-outline-secondary">Nenhum</button>
+                </div>
+        
+        <div class="chart-container">
+            <div id="grafico"></div>
+        </div>
+        
+        <div class="table-container">
+            <h3 class="mb-3">Dados Detalhados</h3>
+            <div id="tabela-dados" class="table-responsive"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dados incorporados diretamente no HTML
+        const dados = [{"bairro":"Jardim S\u00edlvio Sampaio","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.642285095454582, -46.790461648144124","populacao":1709,"percentual_idoso_populacao":"16,50%","idosos":273,"idosos_prioridade":9,"idosos_total":282,"idosos_pcd":48,"idosos_prioridade_pcd":3,"total_idoso_pcd":51,"idosos_rf":215,"idosos_prioridade_rf":1,"total_idosos_rf":216,"idosos_unipessoal":126,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":127},{"bairro":"Jardim Su\u00edna","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.640521173453372, -46.79298477842206","populacao":2426,"percentual_idoso_populacao":"13,81%","idosos":323,"idosos_prioridade":12,"idosos_total":335,"idosos_pcd":63,"idosos_prioridade_pcd":3,"total_idoso_pcd":66,"idosos_rf":238,"idosos_prioridade_rf":7,"total_idosos_rf":245,"idosos_unipessoal":135,"idosos_prioridade_unipessoal":7,"total_idosos_unipessoal":142},{"bairro":"Jardim Iracema","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63714667808617, -46.785535487797475","populacao":1879,"percentual_idoso_populacao":"14,00%","idosos":253,"idosos_prioridade":10,"idosos_total":263,"idosos_pcd":37,"idosos_prioridade_pcd":0,"total_idoso_pcd":37,"idosos_rf":179,"idosos_prioridade_rf":7,"total_idosos_rf":186,"idosos_unipessoal":107,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":111},{"bairro":"Jardim Maria Luiza","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63844067818509, -46.78882634083727","populacao":1362,"percentual_idoso_populacao":"14,98%","idosos":200,"idosos_prioridade":4,"idosos_total":204,"idosos_pcd":26,"idosos_prioridade_pcd":1,"total_idoso_pcd":27,"idosos_rf":138,"idosos_prioridade_rf":2,"total_idosos_rf":140,"idosos_unipessoal":73,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":74},{"bairro":"Jardim Guaciara","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63551913090944, -46.79081005727267","populacao":479,"percentual_idoso_populacao":"18,16%","idosos":81,"idosos_prioridade":6,"idosos_total":87,"idosos_pcd":15,"idosos_prioridade_pcd":2,"total_idoso_pcd":17,"idosos_rf":60,"idosos_prioridade_rf":2,"total_idosos_rf":62,"idosos_unipessoal":33,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":34},{"bairro":"Jardim Clementino","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63531676360255, -46.78191650649442","populacao":2035,"percentual_idoso_populacao":"18,43%","idosos":353,"idosos_prioridade":22,"idosos_total":375,"idosos_pcd":50,"idosos_prioridade_pcd":3,"total_idoso_pcd":53,"idosos_rf":254,"idosos_prioridade_rf":11,"total_idosos_rf":265,"idosos_unipessoal":134,"idosos_prioridade_unipessoal":8,"total_idosos_unipessoal":142},{"bairro":"Jardim Tri\u00e2ngulo","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.634819845039654, -46.788708428165315","populacao":251,"percentual_idoso_populacao":"18,73%","idosos":46,"idosos_prioridade":1,"idosos_total":47,"idosos_pcd":12,"idosos_prioridade_pcd":0,"total_idoso_pcd":12,"idosos_rf":34,"idosos_prioridade_rf":0,"total_idosos_rf":34,"idosos_unipessoal":21,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":21},{"bairro":"Jardim Saint Moritz","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.623074279506735, -46.802333946399","populacao":3879,"percentual_idoso_populacao":"10,85%","idosos":411,"idosos_prioridade":10,"idosos_total":421,"idosos_pcd":65,"idosos_prioridade_pcd":2,"total_idoso_pcd":67,"idosos_rf":300,"idosos_prioridade_rf":4,"total_idosos_rf":304,"idosos_unipessoal":155,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":157},{"bairro":"Jardim das Margaridas","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.626264823637044, -46.80919709886484","populacao":2695,"percentual_idoso_populacao":"13,88%","idosos":369,"idosos_prioridade":5,"idosos_total":374,"idosos_pcd":59,"idosos_prioridade_pcd":2,"total_idoso_pcd":61,"idosos_rf":282,"idosos_prioridade_rf":3,"total_idosos_rf":285,"idosos_unipessoal":168,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":172},{"bairro":"Jardim S\u00e3o Judas Tadeu","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62886337651195, -46.8078150632527","populacao":3994,"percentual_idoso_populacao":"13,80%","idosos":534,"idosos_prioridade":17,"idosos_total":551,"idosos_pcd":100,"idosos_prioridade_pcd":6,"total_idoso_pcd":106,"idosos_rf":404,"idosos_prioridade_rf":10,"total_idosos_rf":414,"idosos_unipessoal":251,"idosos_prioridade_unipessoal":9,"total_idosos_unipessoal":260},{"bairro":"Vila Indiana","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62282200088364, -46.80577480617705","populacao":1796,"percentual_idoso_populacao":"11,02%","idosos":190,"idosos_prioridade":8,"idosos_total":198,"idosos_pcd":33,"idosos_prioridade_pcd":2,"total_idoso_pcd":35,"idosos_rf":152,"idosos_prioridade_rf":4,"total_idosos_rf":156,"idosos_unipessoal":92,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":94},{"bairro":"Jardim Comunit\u00e1rio","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62385321777189, -46.810179220751166","populacao":1702,"percentual_idoso_populacao":"7,40%","idosos":123,"idosos_prioridade":3,"idosos_total":126,"idosos_pcd":22,"idosos_prioridade_pcd":1,"total_idoso_pcd":23,"idosos_rf":89,"idosos_prioridade_rf":1,"total_idosos_rf":90,"idosos_unipessoal":49,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":50},{"bairro":"Vila Francisco Remeikis","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.619498213907526, -46.80472675489248","populacao":350,"percentual_idoso_populacao":"9,43%","idosos":32,"idosos_prioridade":1,"idosos_total":33,"idosos_pcd":4,"idosos_prioridade_pcd":0,"total_idoso_pcd":4,"idosos_rf":25,"idosos_prioridade_rf":1,"total_idosos_rf":26,"idosos_unipessoal":14,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":14},{"bairro":"Jardim Elizabete","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.621990452231135, -46.80720432472902","populacao":479,"percentual_idoso_populacao":"12,94%","idosos":58,"idosos_prioridade":4,"idosos_total":62,"idosos_pcd":16,"idosos_prioridade_pcd":0,"total_idoso_pcd":16,"idosos_rf":40,"idosos_prioridade_rf":2,"total_idosos_rf":42,"idosos_unipessoal":19,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":20},{"bairro":"Conjunto Residencial Belo Horizonte","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.620515938070263, -46.80710991123792","populacao":6,"percentual_idoso_populacao":"33,33%","idosos":2,"idosos_prioridade":0,"idosos_total":2,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":1,"idosos_prioridade_rf":0,"total_idosos_rf":1,"idosos_unipessoal":0,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":0},{"bairro":"Jardim Maria Rosa","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61527149534125, -46.76375396061972","populacao":1854,"percentual_idoso_populacao":"22,06%","idosos":378,"idosos_prioridade":31,"idosos_total":409,"idosos_pcd":58,"idosos_prioridade_pcd":10,"total_idoso_pcd":68,"idosos_rf":286,"idosos_prioridade_rf":16,"total_idosos_rf":302,"idosos_unipessoal":164,"idosos_prioridade_unipessoal":10,"total_idosos_unipessoal":174},{"bairro":"Vila S\u00f4nia do Tabo\u00e3o","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61869375768245, -46.77086274504125","populacao":392,"percentual_idoso_populacao":"21,94%","idosos":85,"idosos_prioridade":1,"idosos_total":86,"idosos_pcd":18,"idosos_prioridade_pcd":1,"total_idoso_pcd":19,"idosos_rf":61,"idosos_prioridade_rf":0,"total_idosos_rf":61,"idosos_unipessoal":30,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":30},{"bairro":"Jardim Beatriz","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.618272781362712, -46.76909239160325","populacao":642,"percentual_idoso_populacao":"21,34%","idosos":132,"idosos_prioridade":5,"idosos_total":137,"idosos_pcd":23,"idosos_prioridade_pcd":1,"total_idoso_pcd":24,"idosos_rf":97,"idosos_prioridade_rf":4,"total_idosos_rf":101,"idosos_unipessoal":56,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":60},{"bairro":"Parque Albina","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61821822676501, -46.765660682645624","populacao":357,"percentual_idoso_populacao":"19,61%","idosos":64,"idosos_prioridade":6,"idosos_total":70,"idosos_pcd":10,"idosos_prioridade_pcd":3,"total_idoso_pcd":13,"idosos_rf":46,"idosos_prioridade_rf":3,"total_idosos_rf":49,"idosos_unipessoal":28,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":30},{"bairro":"Jardim Tr\u00eas Irm\u00e3os","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.617107678761553, -46.76292856309184","populacao":113,"percentual_idoso_populacao":"18,58%","idosos":17,"idosos_prioridade":4,"idosos_total":21,"idosos_pcd":5,"idosos_prioridade_pcd":0,"total_idoso_pcd":5,"idosos_rf":11,"idosos_prioridade_rf":2,"total_idosos_rf":13,"idosos_unipessoal":3,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":4},{"bairro":"Jardim Henriqueta","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.620733847151037, -46.76754769006134","populacao":614,"percentual_idoso_populacao":"22,31%","idosos":125,"idosos_prioridade":12,"idosos_total":137,"idosos_pcd":26,"idosos_prioridade_pcd":1,"total_idoso_pcd":27,"idosos_rf":96,"idosos_prioridade_rf":7,"total_idosos_rf":103,"idosos_unipessoal":45,"idosos_prioridade_unipessoal":6,"total_idosos_unipessoal":51},{"bairro":"Parque Tabo\u00e3o","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.618668542458387, -46.771833987348494","populacao":557,"percentual_idoso_populacao":"23,52%","idosos":125,"idosos_prioridade":6,"idosos_total":131,"idosos_pcd":21,"idosos_prioridade_pcd":0,"total_idoso_pcd":21,"idosos_rf":98,"idosos_prioridade_rf":4,"total_idosos_rf":102,"idosos_unipessoal":50,"idosos_prioridade_unipessoal":3,"total_idosos_unipessoal":53},{"bairro":"Jardim S\u00e3o Miguel","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.612876729470308, -46.77175787498627","populacao":112,"percentual_idoso_populacao":"31,25%","idosos":35,"idosos_prioridade":0,"idosos_total":35,"idosos_pcd":9,"idosos_prioridade_pcd":0,"total_idoso_pcd":9,"idosos_rf":28,"idosos_prioridade_rf":0,"total_idosos_rf":28,"idosos_unipessoal":18,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":18},{"bairro":"Ch\u00e1cara Agrindus","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.613094109832087, -46.765230627351656","populacao":422,"percentual_idoso_populacao":"30,33%","idosos":117,"idosos_prioridade":11,"idosos_total":128,"idosos_pcd":21,"idosos_prioridade_pcd":3,"total_idoso_pcd":24,"idosos_rf":86,"idosos_prioridade_rf":6,"total_idosos_rf":92,"idosos_unipessoal":43,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":47},{"bairro":"Jardim Pedro Gon\u00e7alves","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.614847378484022, -46.77530044981345","populacao":55,"percentual_idoso_populacao":"40,00%","idosos":20,"idosos_prioridade":2,"idosos_total":22,"idosos_pcd":3,"idosos_prioridade_pcd":0,"total_idoso_pcd":3,"idosos_rf":17,"idosos_prioridade_rf":0,"total_idosos_rf":17,"idosos_unipessoal":8,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":8},{"bairro":"Jardim Bontempo","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.6114429949362, -46.759310294852575","populacao":150,"percentual_idoso_populacao":"38,67%","idosos":56,"idosos_prioridade":2,"idosos_total":58,"idosos_pcd":10,"idosos_prioridade_pcd":1,"total_idoso_pcd":11,"idosos_rf":35,"idosos_prioridade_rf":0,"total_idosos_rf":35,"idosos_unipessoal":16,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":16},{"bairro":"Centro","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.607953406653998, -46.75272941245849","populacao":52,"percentual_idoso_populacao":"28,85%","idosos":13,"idosos_prioridade":2,"idosos_total":15,"idosos_pcd":3,"idosos_prioridade_pcd":1,"total_idoso_pcd":4,"idosos_rf":10,"idosos_prioridade_rf":0,"total_idosos_rf":10,"idosos_unipessoal":1,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":1},{"bairro":"Jardim da Gl\u00f3ria","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.610177094051934, -46.75602464189332","populacao":4,"percentual_idoso_populacao":"100,00%","idosos":4,"idosos_prioridade":0,"idosos_total":4,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":3,"idosos_prioridade_rf":0,"total_idosos_rf":3,"idosos_unipessoal":2,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":2},{"bairro":"Parque Assun\u00e7\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.603506416636826, -46.76125602814492","populacao":472,"percentual_idoso_populacao":"22,03%","idosos":96,"idosos_prioridade":8,"idosos_total":104,"idosos_pcd":28,"idosos_prioridade_pcd":2,"total_idoso_pcd":30,"idosos_rf":74,"idosos_prioridade_rf":4,"total_idosos_rf":78,"idosos_unipessoal":43,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":44},{"bairro":"Jardim Guayana","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.598023425462138, -46.76246569428526","populacao":329,"percentual_idoso_populacao":"19,76%","idosos":57,"idosos_prioridade":8,"idosos_total":65,"idosos_pcd":19,"idosos_prioridade_pcd":7,"total_idoso_pcd":26,"idosos_rf":43,"idosos_prioridade_rf":6,"total_idosos_rf":49,"idosos_unipessoal":29,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":33},{"bairro":"Jardim Caner","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.6039321848323, -46.75168556628612","populacao":341,"percentual_idoso_populacao":"16,72%","idosos":55,"idosos_prioridade":2,"idosos_total":57,"idosos_pcd":21,"idosos_prioridade_pcd":2,"total_idoso_pcd":23,"idosos_rf":43,"idosos_prioridade_rf":1,"total_idosos_rf":44,"idosos_unipessoal":24,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":25},{"bairro":"Parque Monte Alegre","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60430063942033, -46.77257858378486","populacao":798,"percentual_idoso_populacao":"20,18%","idosos":156,"idosos_prioridade":5,"idosos_total":161,"idosos_pcd":41,"idosos_prioridade_pcd":2,"total_idoso_pcd":43,"idosos_rf":114,"idosos_prioridade_rf":3,"total_idosos_rf":117,"idosos_unipessoal":51,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":52},{"bairro":"Jardim Santa Terezinha","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601620402322194, -46.75723118980641","populacao":442,"percentual_idoso_populacao":"19,91%","idosos":83,"idosos_prioridade":5,"idosos_total":88,"idosos_pcd":18,"idosos_prioridade_pcd":2,"total_idoso_pcd":20,"idosos_rf":61,"idosos_prioridade_rf":4,"total_idosos_rf":65,"idosos_unipessoal":36,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":38},{"bairro":"Vila Santa Luzia","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.606230220200903, -46.753602812321205","populacao":206,"percentual_idoso_populacao":"23,30%","idosos":46,"idosos_prioridade":2,"idosos_total":48,"idosos_pcd":9,"idosos_prioridade_pcd":0,"total_idoso_pcd":9,"idosos_rf":37,"idosos_prioridade_rf":1,"total_idosos_rf":38,"idosos_unipessoal":24,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":25},{"bairro":"Jardim Kuabara","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.603459603403202, -46.75596119031995","populacao":490,"percentual_idoso_populacao":"22,65%","idosos":104,"idosos_prioridade":7,"idosos_total":111,"idosos_pcd":25,"idosos_prioridade_pcd":2,"total_idoso_pcd":27,"idosos_rf":79,"idosos_prioridade_rf":3,"total_idosos_rf":82,"idosos_unipessoal":48,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":48},{"bairro":"Jardim Pazini","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.602509628771532, -46.753931599087075","populacao":332,"percentual_idoso_populacao":"15,36%","idosos":44,"idosos_prioridade":7,"idosos_total":51,"idosos_pcd":11,"idosos_prioridade_pcd":0,"total_idoso_pcd":11,"idosos_rf":36,"idosos_prioridade_rf":3,"total_idosos_rf":39,"idosos_unipessoal":21,"idosos_prioridade_unipessoal":3,"total_idosos_unipessoal":24},{"bairro":"Jardim Frei Galv\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60011133008812, -46.75938177447562","populacao":282,"percentual_idoso_populacao":"16,67%","idosos":47,"idosos_prioridade":0,"idosos_total":47,"idosos_pcd":14,"idosos_prioridade_pcd":0,"total_idoso_pcd":14,"idosos_rf":39,"idosos_prioridade_rf":0,"total_idosos_rf":39,"idosos_unipessoal":25,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":25},{"bairro":"Jardim Para\u00edso","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.597945309756724, -46.75930170859383","populacao":130,"percentual_idoso_populacao":"13,08%","idosos":15,"idosos_prioridade":2,"idosos_total":17,"idosos_pcd":5,"idosos_prioridade_pcd":0,"total_idoso_pcd":5,"idosos_rf":9,"idosos_prioridade_rf":0,"total_idosos_rf":9,"idosos_unipessoal":5,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":5},{"bairro":"Jardim Ouro Preto","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.59857321233405, -46.76338556884436","populacao":403,"percentual_idoso_populacao":"19,60%","idosos":71,"idosos_prioridade":8,"idosos_total":79,"idosos_pcd":17,"idosos_prioridade_pcd":2,"total_idoso_pcd":19,"idosos_rf":53,"idosos_prioridade_rf":5,"total_idosos_rf":58,"idosos_unipessoal":25,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":27},{"bairro":"Jardim Tabo\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.59960868513267, -46.7589031938705","populacao":57,"percentual_idoso_populacao":"24,56%","idosos":12,"idosos_prioridade":2,"idosos_total":14,"idosos_pcd":5,"idosos_prioridade_pcd":2,"total_idoso_pcd":7,"idosos_rf":10,"idosos_prioridade_rf":1,"total_idosos_rf":11,"idosos_unipessoal":6,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":7},{"bairro":"Jardim Monte Alegre","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60404921651781, -46.7663188151975","populacao":777,"percentual_idoso_populacao":"23,29%","idosos":174,"idosos_prioridade":7,"idosos_total":181,"idosos_pcd":43,"idosos_prioridade_pcd":3,"total_idoso_pcd":46,"idosos_rf":124,"idosos_prioridade_rf":4,"total_idosos_rf":128,"idosos_unipessoal":67,"idosos_prioridade_unipessoal":3,"total_idosos_unipessoal":70},{"bairro":"Jardim Santa Rosa","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.600072160432255, -46.76287615393666","populacao":284,"percentual_idoso_populacao":"16,55%","idosos":45,"idosos_prioridade":2,"idosos_total":47,"idosos_pcd":11,"idosos_prioridade_pcd":2,"total_idoso_pcd":13,"idosos_rf":34,"idosos_prioridade_rf":1,"total_idosos_rf":35,"idosos_unipessoal":20,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":20},{"bairro":"Jardim da Serra","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601285896230156, -46.77106250833405","populacao":57,"percentual_idoso_populacao":"3,51%","idosos":2,"idosos_prioridade":0,"idosos_total":2,"idosos_pcd":1,"idosos_prioridade_pcd":0,"total_idoso_pcd":1,"idosos_rf":2,"idosos_prioridade_rf":0,"total_idosos_rf":2,"idosos_unipessoal":2,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":2},{"bairro":"Jardim Am\u00e9rica","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.607055280009334, -46.77424044277341","populacao":287,"percentual_idoso_populacao":"27,53%","idosos":73,"idosos_prioridade":6,"idosos_total":79,"idosos_pcd":13,"idosos_prioridade_pcd":0,"total_idoso_pcd":13,"idosos_rf":47,"idosos_prioridade_rf":1,"total_idosos_rf":48,"idosos_unipessoal":19,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":20},{"bairro":"Parque Santos Dumont","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60750622751255, -46.758814698017666","populacao":96,"percentual_idoso_populacao":"54,17%","idosos":45,"idosos_prioridade":7,"idosos_total":52,"idosos_pcd":3,"idosos_prioridade_pcd":1,"total_idoso_pcd":4,"idosos_rf":31,"idosos_prioridade_rf":5,"total_idosos_rf":36,"idosos_unipessoal":15,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":19},{"bairro":"Jardim Virg\u00ednia","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60136056763698, -46.75867267842593","populacao":51,"percentual_idoso_populacao":"19,61%","idosos":8,"idosos_prioridade":2,"idosos_total":10,"idosos_pcd":4,"idosos_prioridade_pcd":0,"total_idoso_pcd":4,"idosos_rf":7,"idosos_prioridade_rf":2,"total_idosos_rf":9,"idosos_unipessoal":2,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":4},{"bairro":"Parque Residencial M\u00f4nica","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601817975147625, -46.7687540400632","populacao":3,"percentual_idoso_populacao":"100,00%","idosos":2,"idosos_prioridade":1,"idosos_total":3,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":1,"idosos_prioridade_rf":0,"total_idosos_rf":1,"idosos_unipessoal":0,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":0},{"bairro":"Jardim S\u00e3o Salvador","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.637620605851822, -46.797019667979995","populacao":1423,"percentual_idoso_populacao":"17,85%","idosos":229,"idosos_prioridade":25,"idosos_total":254,"idosos_pcd":43,"idosos_prioridade_pcd":8,"total_idoso_pcd":51,"idosos_rf":172,"idosos_prioridade_rf":19,"total_idosos_rf":191,"idosos_unipessoal":105,"idosos_prioridade_unipessoal":15,"total_idosos_unipessoal":120},{"bairro":"Jardim Leme","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.645210152856233, -46.792549893509445","populacao":1638,"percentual_idoso_populacao":"14,47%","idosos":227,"idosos_prioridade":10,"idosos_total":237,"idosos_pcd":46,"idosos_prioridade_pcd":2,"total_idoso_pcd":48,"idosos_rf":174,"idosos_prioridade_rf":9,"total_idosos_rf":183,"idosos_unipessoal":104,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":108},{"bairro":"Parque Jacarand\u00e1","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.64311889636783, -46.80012048609402","populacao":3221,"percentual_idoso_populacao":"13,44%","idosos":417,"idosos_prioridade":16,"idosos_total":433,"idosos_pcd":61,"idosos_prioridade_pcd":6,"total_idoso_pcd":67,"idosos_rf":322,"idosos_prioridade_rf":8,"total_idosos_rf":330,"idosos_unipessoal":186,"idosos_prioridade_unipessoal":9,"total_idosos_unipessoal":195},{"bairro":"Jardim Santa Cruz","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.641470197504944, -46.80271490516157","populacao":826,"percentual_idoso_populacao":"18,77%","idosos":145,"idosos_prioridade":10,"idosos_total":155,"idosos_pcd":31,"idosos_prioridade_pcd":3,"total_idoso_pcd":34,"idosos_rf":105,"idosos_prioridade_rf":9,"total_idosos_rf":114,"idosos_unipessoal":65,"idosos_prioridade_unipessoal":8,"total_idosos_unipessoal":73},{"bairro":"Parque S\u00e3o Joaquim","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642627294556217, -46.79602939773166","populacao":1447,"percentual_idoso_populacao":"16,17%","idosos":214,"idosos_prioridade":20,"idosos_total":234,"idosos_pcd":31,"idosos_prioridade_pcd":7,"total_idoso_pcd":38,"idosos_rf":163,"idosos_prioridade_rf":9,"total_idosos_rf":172,"idosos_unipessoal":84,"idosos_prioridade_unipessoal":6,"total_idosos_unipessoal":90},{"bairro":"Jardim Maria da Costa","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642539569219643, -46.803653674471455","populacao":378,"percentual_idoso_populacao":"16,93%","idosos":58,"idosos_prioridade":6,"idosos_total":64,"idosos_pcd":9,"idosos_prioridade_pcd":0,"total_idoso_pcd":9,"idosos_rf":41,"idosos_prioridade_rf":4,"total_idosos_rf":45,"idosos_unipessoal":24,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":25},{"bairro":"Jardim Fl\u00f3rida","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642156154983322, -46.804936415059935","populacao":170,"percentual_idoso_populacao":"12,94%","idosos":21,"idosos_prioridade":1,"idosos_total":22,"idosos_pcd":1,"idosos_prioridade_pcd":1,"total_idoso_pcd":2,"idosos_rf":16,"idosos_prioridade_rf":0,"total_idosos_rf":16,"idosos_unipessoal":9,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":9},{"bairro":"Jardim Marlene","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.640028330039726, -46.79805730133223","populacao":34,"percentual_idoso_populacao":"26,47%","idosos":9,"idosos_prioridade":0,"idosos_total":9,"idosos_pcd":3,"idosos_prioridade_pcd":0,"total_idoso_pcd":3,"idosos_rf":8,"idosos_prioridade_rf":0,"total_idosos_rf":8,"idosos_unipessoal":4,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":4},{"bairro":"Vila Carmelina Gon\u00e7alves","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.641521953502636, -46.79840205068296","populacao":190,"percentual_idoso_populacao":"22,63%","idosos":35,"idosos_prioridade":8,"idosos_total":43,"idosos_pcd":9,"idosos_prioridade_pcd":3,"total_idoso_pcd":12,"idosos_rf":26,"idosos_prioridade_rf":3,"total_idosos_rf":29,"idosos_unipessoal":19,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":21},{"bairro":"Jardim Maria Helena","macro_regiao":"Salete","cor":"beige","coordenadas":"-23.62656455520226, -46.80356806282134","populacao":1378,"percentual_idoso_populacao":"16,33%","idosos":204,"idosos_prioridade":21,"idosos_total":225,"idosos_pcd":62,"idosos_prioridade_pcd":10,"total_idoso_pcd":72,"idosos_rf":144,"idosos_prioridade_rf":19,"total_idosos_rf":163,"idosos_unipessoal":56,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":58},{"bairro":"Jardim Salete","macro_regiao":"Salete","cor":"beige","coordenadas":"-23.623480422012634, -46.7983473323882","populacao":2774,"percentual_idoso_populacao":"15,36%","idosos":410,"idosos_prioridade":16,"idosos_total":426,"idosos_pcd":81,"idosos_prioridade_pcd":6,"total_idoso_pcd":87,"idosos_rf":315,"idosos_prioridade_rf":7,"total_idosos_rf":322,"idosos_unipessoal":179,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":183},{"bairro":"Parque Pinheiros","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.625815338109142, -46.783157775290846","populacao":7792,"percentual_idoso_populacao":"16,71%","idosos":1244,"idosos_prioridade":58,"idosos_total":1302,"idosos_pcd":210,"idosos_prioridade_pcd":13,"total_idoso_pcd":223,"idosos_rf":930,"idosos_prioridade_rf":32,"total_idosos_rf":962,"idosos_unipessoal":547,"idosos_prioridade_unipessoal":26,"total_idosos_unipessoal":573},{"bairro":"N\u00facleo Residencial Isabela","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.620664150343714, -46.79255297023719","populacao":295,"percentual_idoso_populacao":"19,32%","idosos":56,"idosos_prioridade":1,"idosos_total":57,"idosos_pcd":7,"idosos_prioridade_pcd":0,"total_idoso_pcd":7,"idosos_rf":36,"idosos_prioridade_rf":1,"total_idosos_rf":37,"idosos_unipessoal":17,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":18},{"bairro":"Jardim Record","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.628766807264714, -46.788760959371196","populacao":9968,"percentual_idoso_populacao":"11,15%","idosos":1087,"idosos_prioridade":24,"idosos_total":1111,"idosos_pcd":167,"idosos_prioridade_pcd":8,"total_idoso_pcd":175,"idosos_rf":821,"idosos_prioridade_rf":8,"total_idosos_rf":829,"idosos_unipessoal":479,"idosos_prioridade_unipessoal":6,"total_idosos_unipessoal":485},{"bairro":"Jardim Saporito","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.632655439049273, -46.78687012027559","populacao":1080,"percentual_idoso_populacao":"17,69%","idosos":182,"idosos_prioridade":9,"idosos_total":191,"idosos_pcd":25,"idosos_prioridade_pcd":1,"total_idoso_pcd":26,"idosos_rf":127,"idosos_prioridade_rf":7,"total_idosos_rf":134,"idosos_unipessoal":74,"idosos_prioridade_unipessoal":5,"total_idosos_unipessoal":79},{"bairro":"Arraial Paulista","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.620808682755953, -46.789750447733546","populacao":746,"percentual_idoso_populacao":"18,36%","idosos":128,"idosos_prioridade":9,"idosos_total":137,"idosos_pcd":26,"idosos_prioridade_pcd":2,"total_idoso_pcd":28,"idosos_rf":95,"idosos_prioridade_rf":7,"total_idosos_rf":102,"idosos_unipessoal":52,"idosos_prioridade_unipessoal":5,"total_idosos_unipessoal":57},{"bairro":"Vila Iasi","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.6210452794143, -46.790323399080414","populacao":203,"percentual_idoso_populacao":"32,02%","idosos":62,"idosos_prioridade":3,"idosos_total":65,"idosos_pcd":9,"idosos_prioridade_pcd":0,"total_idoso_pcd":9,"idosos_rf":47,"idosos_prioridade_rf":2,"total_idosos_rf":49,"idosos_unipessoal":25,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":27},{"bairro":"Jardim Bonanza","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.61903525809029, -46.79183422076426","populacao":22,"percentual_idoso_populacao":"13,64%","idosos":3,"idosos_prioridade":0,"idosos_total":3,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":3,"idosos_prioridade_rf":0,"total_idosos_rf":3,"idosos_unipessoal":3,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":3},{"bairro":"Jardim Panorama","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.636860377628995, -46.80426402765113","populacao":1751,"percentual_idoso_populacao":"16,68%","idosos":271,"idosos_prioridade":21,"idosos_total":292,"idosos_pcd":64,"idosos_prioridade_pcd":8,"total_idoso_pcd":72,"idosos_rf":190,"idosos_prioridade_rf":9,"total_idosos_rf":199,"idosos_unipessoal":91,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":95},{"bairro":"Parque Industrial Daci","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.633762766590035, -46.810610278545425","populacao":502,"percentual_idoso_populacao":"9,16%","idosos":45,"idosos_prioridade":1,"idosos_total":46,"idosos_pcd":12,"idosos_prioridade_pcd":1,"total_idoso_pcd":13,"idosos_rf":37,"idosos_prioridade_rf":0,"total_idosos_rf":37,"idosos_unipessoal":21,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":21},{"bairro":"Jardim Sc\u00e2ndia","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.634621459408713, -46.80542588197921","populacao":1289,"percentual_idoso_populacao":"16,06%","idosos":197,"idosos_prioridade":10,"idosos_total":207,"idosos_pcd":32,"idosos_prioridade_pcd":5,"total_idoso_pcd":37,"idosos_rf":140,"idosos_prioridade_rf":7,"total_idosos_rf":147,"idosos_unipessoal":68,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":72},{"bairro":"Jardim Santo Onofre","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.639456214688295, -46.80612071282002","populacao":1276,"percentual_idoso_populacao":"20,06%","idosos":241,"idosos_prioridade":15,"idosos_total":256,"idosos_pcd":44,"idosos_prioridade_pcd":5,"total_idoso_pcd":49,"idosos_rf":170,"idosos_prioridade_rf":7,"total_idosos_rf":177,"idosos_unipessoal":76,"idosos_prioridade_unipessoal":8,"total_idosos_unipessoal":84},{"bairro":"Jardim Altos do Taboao","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.629613813952822, -46.81267247421483","populacao":102,"percentual_idoso_populacao":"21,57%","idosos":22,"idosos_prioridade":0,"idosos_total":22,"idosos_pcd":3,"idosos_prioridade_pcd":0,"total_idoso_pcd":3,"idosos_rf":13,"idosos_prioridade_rf":0,"total_idosos_rf":13,"idosos_unipessoal":6,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":6},{"bairro":"Parque Industrial Tabo\u00e3o da Serra","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63892124299421, -46.80856268981676","populacao":7,"percentual_idoso_populacao":"0,00%","idosos":0,"idosos_prioridade":0,"idosos_total":0,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":0,"idosos_prioridade_rf":0,"total_idosos_rf":0,"idosos_unipessoal":0,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":0},{"bairro":"Jardim Vit\u00f3ria","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.634325588599513, -46.80226663220895","populacao":449,"percentual_idoso_populacao":"10,24%","idosos":46,"idosos_prioridade":0,"idosos_total":46,"idosos_pcd":9,"idosos_prioridade_pcd":0,"total_idoso_pcd":9,"idosos_rf":32,"idosos_prioridade_rf":0,"total_idosos_rf":32,"idosos_unipessoal":17,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":17},{"bairro":"Jardim Mituzi","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63856816506924, -46.80111077475152","populacao":523,"percentual_idoso_populacao":"25,43%","idosos":123,"idosos_prioridade":10,"idosos_total":133,"idosos_pcd":34,"idosos_prioridade_pcd":3,"total_idoso_pcd":37,"idosos_rf":99,"idosos_prioridade_rf":6,"total_idosos_rf":105,"idosos_unipessoal":56,"idosos_prioridade_unipessoal":5,"total_idosos_unipessoal":61},{"bairro":"Jardim S\u00e3o Luiz","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63636295232412, -46.80991366283436","populacao":416,"percentual_idoso_populacao":"11,54%","idosos":47,"idosos_prioridade":1,"idosos_total":48,"idosos_pcd":5,"idosos_prioridade_pcd":0,"total_idoso_pcd":5,"idosos_rf":32,"idosos_prioridade_rf":0,"total_idosos_rf":32,"idosos_unipessoal":19,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":19},{"bairro":"Cidade Intercap","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.610992288789745, -46.7773686430652","populacao":1931,"percentual_idoso_populacao":"15,28%","idosos":284,"idosos_prioridade":11,"idosos_total":295,"idosos_pcd":56,"idosos_prioridade_pcd":5,"total_idoso_pcd":61,"idosos_rf":194,"idosos_prioridade_rf":8,"total_idosos_rf":202,"idosos_unipessoal":107,"idosos_prioridade_unipessoal":5,"total_idosos_unipessoal":112},{"bairro":"Jardim Mirna","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.612413807242152, -46.785115195300115","populacao":969,"percentual_idoso_populacao":"13,62%","idosos":129,"idosos_prioridade":3,"idosos_total":132,"idosos_pcd":31,"idosos_prioridade_pcd":1,"total_idoso_pcd":32,"idosos_rf":94,"idosos_prioridade_rf":2,"total_idosos_rf":96,"idosos_unipessoal":51,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":53},{"bairro":"Parque das Cigarreiras","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.60693251715917, -46.784008220357144","populacao":233,"percentual_idoso_populacao":"11,16%","idosos":23,"idosos_prioridade":3,"idosos_total":26,"idosos_pcd":3,"idosos_prioridade_pcd":1,"total_idoso_pcd":4,"idosos_rf":16,"idosos_prioridade_rf":1,"total_idosos_rf":17,"idosos_unipessoal":10,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":10},{"bairro":"Parque Laguna","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.614265027616156, -46.79797676117048","populacao":698,"percentual_idoso_populacao":"19,77%","idosos":136,"idosos_prioridade":2,"idosos_total":138,"idosos_pcd":42,"idosos_prioridade_pcd":1,"total_idoso_pcd":43,"idosos_rf":104,"idosos_prioridade_rf":0,"total_idosos_rf":104,"idosos_unipessoal":57,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":57},{"bairro":"Jardim Tr\u00eas Marias","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.61392424633577, -46.78946330566392","populacao":628,"percentual_idoso_populacao":"19,75%","idosos":121,"idosos_prioridade":3,"idosos_total":124,"idosos_pcd":27,"idosos_prioridade_pcd":1,"total_idoso_pcd":28,"idosos_rf":94,"idosos_prioridade_rf":1,"total_idosos_rf":95,"idosos_unipessoal":59,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":59},{"bairro":"Morada dos P\u00e1ssaros","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.60874607207493, -46.78278984873739","populacao":1,"percentual_idoso_populacao":"0,00%","idosos":0,"idosos_prioridade":0,"idosos_total":0,"idosos_pcd":0,"idosos_prioridade_pcd":0,"total_idoso_pcd":0,"idosos_rf":0,"idosos_prioridade_rf":0,"total_idosos_rf":0,"idosos_unipessoal":0,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":0},{"bairro":"Condom\u00ednio Iolanda","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.617006619385403, -46.80690231429497","populacao":9,"percentual_idoso_populacao":"55,56%","idosos":5,"idosos_prioridade":0,"idosos_total":5,"idosos_pcd":4,"idosos_prioridade_pcd":0,"total_idoso_pcd":4,"idosos_rf":1,"idosos_prioridade_rf":0,"total_idosos_rf":1,"idosos_unipessoal":1,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":1},{"bairro":"Jardim Novo Record","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.626563450075132, -46.79254699284178","populacao":3162,"percentual_idoso_populacao":"7,40%","idosos":230,"idosos_prioridade":4,"idosos_total":234,"idosos_pcd":36,"idosos_prioridade_pcd":1,"total_idoso_pcd":37,"idosos_rf":162,"idosos_prioridade_rf":1,"total_idosos_rf":163,"idosos_unipessoal":94,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":95},{"bairro":"Jardim Trianon","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.631645389282625, -46.79398589006","populacao":3864,"percentual_idoso_populacao":"13,41%","idosos":493,"idosos_prioridade":25,"idosos_total":518,"idosos_pcd":99,"idosos_prioridade_pcd":10,"total_idoso_pcd":109,"idosos_rf":357,"idosos_prioridade_rf":17,"total_idosos_rf":374,"idosos_unipessoal":190,"idosos_prioridade_unipessoal":10,"total_idosos_unipessoal":200},{"bairro":"Jardim Freitas J\u00fanior","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63354312495559, -46.79711748331501","populacao":1407,"percentual_idoso_populacao":"14,71%","idosos":196,"idosos_prioridade":11,"idosos_total":207,"idosos_pcd":37,"idosos_prioridade_pcd":2,"total_idoso_pcd":39,"idosos_rf":148,"idosos_prioridade_rf":7,"total_idosos_rf":155,"idosos_unipessoal":99,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":103},{"bairro":"S\u00edtio das Madres","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.633780078750092, -46.79982364192776","populacao":1777,"percentual_idoso_populacao":"15,53%","idosos":269,"idosos_prioridade":7,"idosos_total":276,"idosos_pcd":43,"idosos_prioridade_pcd":2,"total_idoso_pcd":45,"idosos_rf":202,"idosos_prioridade_rf":5,"total_idosos_rf":207,"idosos_unipessoal":104,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":108},{"bairro":"Vila Mafalda","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63367057079279, -46.79355619908621","populacao":733,"percentual_idoso_populacao":"16,78%","idosos":116,"idosos_prioridade":7,"idosos_total":123,"idosos_pcd":21,"idosos_prioridade_pcd":2,"total_idoso_pcd":23,"idosos_rf":88,"idosos_prioridade_rf":7,"total_idosos_rf":95,"idosos_unipessoal":54,"idosos_prioridade_unipessoal":5,"total_idosos_unipessoal":59},{"bairro":"P\u00f4r do Sol","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63129018926497, -46.798729237188226","populacao":137,"percentual_idoso_populacao":"11,68%","idosos":16,"idosos_prioridade":0,"idosos_total":16,"idosos_pcd":2,"idosos_prioridade_pcd":0,"total_idoso_pcd":2,"idosos_rf":13,"idosos_prioridade_rf":0,"total_idosos_rf":13,"idosos_unipessoal":7,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":7},{"bairro":"Jardim S\u00e3o Jo\u00e3o","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63650479361007, -46.79987590230553","populacao":255,"percentual_idoso_populacao":"14,12%","idosos":33,"idosos_prioridade":3,"idosos_total":36,"idosos_pcd":8,"idosos_prioridade_pcd":1,"total_idoso_pcd":9,"idosos_rf":27,"idosos_prioridade_rf":1,"total_idosos_rf":28,"idosos_unipessoal":18,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":18},{"bairro":"Jardim Roberto","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63655023767579, -46.79407768224038","populacao":824,"percentual_idoso_populacao":"18,69%","idosos":146,"idosos_prioridade":8,"idosos_total":154,"idosos_pcd":23,"idosos_prioridade_pcd":2,"total_idoso_pcd":25,"idosos_rf":109,"idosos_prioridade_rf":5,"total_idosos_rf":114,"idosos_unipessoal":70,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":72},{"bairro":"Jardim Pirajussara","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63528292910984, -46.79250621679909","populacao":222,"percentual_idoso_populacao":"14,86%","idosos":32,"idosos_prioridade":1,"idosos_total":33,"idosos_pcd":4,"idosos_prioridade_pcd":1,"total_idoso_pcd":5,"idosos_rf":22,"idosos_prioridade_rf":1,"total_idosos_rf":23,"idosos_unipessoal":13,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":13},{"bairro":"Jardim Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.624301254776856, -46.77246485010716","populacao":1978,"percentual_idoso_populacao":"12,94%","idosos":250,"idosos_prioridade":6,"idosos_total":256,"idosos_pcd":38,"idosos_prioridade_pcd":1,"total_idoso_pcd":39,"idosos_rf":188,"idosos_prioridade_rf":4,"total_idosos_rf":192,"idosos_unipessoal":109,"idosos_prioridade_unipessoal":4,"total_idosos_unipessoal":113},{"bairro":"Parque Marab\u00e1","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.627018809842877, -46.7745607242017","populacao":1672,"percentual_idoso_populacao":"18,06%","idosos":298,"idosos_prioridade":4,"idosos_total":302,"idosos_pcd":56,"idosos_prioridade_pcd":2,"total_idoso_pcd":58,"idosos_rf":224,"idosos_prioridade_rf":3,"total_idosos_rf":227,"idosos_unipessoal":135,"idosos_prioridade_unipessoal":2,"total_idosos_unipessoal":137},{"bairro":"Jardim S\u00e3o Mateus","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.623401656069472, -46.7688888449768","populacao":320,"percentual_idoso_populacao":"13,13%","idosos":41,"idosos_prioridade":1,"idosos_total":42,"idosos_pcd":12,"idosos_prioridade_pcd":0,"total_idoso_pcd":12,"idosos_rf":31,"idosos_prioridade_rf":1,"total_idosos_rf":32,"idosos_unipessoal":20,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":21},{"bairro":"Jardim Santa Cec\u00edlia","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.621797212078, -46.7876898014544","populacao":164,"percentual_idoso_populacao":"18,90%","idosos":31,"idosos_prioridade":0,"idosos_total":31,"idosos_pcd":7,"idosos_prioridade_pcd":0,"total_idoso_pcd":7,"idosos_rf":21,"idosos_prioridade_rf":0,"total_idosos_rf":21,"idosos_unipessoal":9,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":9},{"bairro":"Jardim Irapua","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.622285231118894, -46.780488663091504","populacao":510,"percentual_idoso_populacao":"13,53%","idosos":69,"idosos_prioridade":0,"idosos_total":69,"idosos_pcd":8,"idosos_prioridade_pcd":0,"total_idoso_pcd":8,"idosos_rf":46,"idosos_prioridade_rf":0,"total_idosos_rf":46,"idosos_unipessoal":24,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":24},{"bairro":"Jardim S\u00e3o Paulo","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.61869699571225, -46.788196633224665","populacao":116,"percentual_idoso_populacao":"25,00%","idosos":25,"idosos_prioridade":4,"idosos_total":29,"idosos_pcd":1,"idosos_prioridade_pcd":2,"total_idoso_pcd":3,"idosos_rf":16,"idosos_prioridade_rf":2,"total_idosos_rf":18,"idosos_unipessoal":5,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":5},{"bairro":"Jardim Nova Esperan\u00e7a","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.620921088632986, -46.77336562447205","populacao":146,"percentual_idoso_populacao":"15,75%","idosos":23,"idosos_prioridade":0,"idosos_total":23,"idosos_pcd":6,"idosos_prioridade_pcd":0,"total_idoso_pcd":6,"idosos_rf":21,"idosos_prioridade_rf":0,"total_idosos_rf":21,"idosos_unipessoal":17,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":17},{"bairro":"Jardim Helena","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.62097774994097, -46.77206374748973","populacao":421,"percentual_idoso_populacao":"18,05%","idosos":67,"idosos_prioridade":9,"idosos_total":76,"idosos_pcd":11,"idosos_prioridade_pcd":3,"total_idoso_pcd":14,"idosos_rf":52,"idosos_prioridade_rf":4,"total_idosos_rf":56,"idosos_unipessoal":30,"idosos_prioridade_unipessoal":3,"total_idosos_unipessoal":33},{"bairro":"Parque Industrial das Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.621233780128918, -46.777928392741224","populacao":163,"percentual_idoso_populacao":"22,09%","idosos":36,"idosos_prioridade":0,"idosos_total":36,"idosos_pcd":5,"idosos_prioridade_pcd":0,"total_idoso_pcd":5,"idosos_rf":26,"idosos_prioridade_rf":0,"total_idosos_rf":26,"idosos_unipessoal":12,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":12},{"bairro":"Vila das Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.61379927308609, -46.779316346706466","populacao":242,"percentual_idoso_populacao":"15,70%","idosos":33,"idosos_prioridade":5,"idosos_total":38,"idosos_pcd":5,"idosos_prioridade_pcd":2,"total_idoso_pcd":7,"idosos_rf":25,"idosos_prioridade_rf":2,"total_idosos_rf":27,"idosos_unipessoal":14,"idosos_prioridade_unipessoal":1,"total_idosos_unipessoal":15},{"bairro":"Jardim Wanda","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.617596028753173, -46.777354741957886","populacao":160,"percentual_idoso_populacao":"25,00%","idosos":38,"idosos_prioridade":2,"idosos_total":40,"idosos_pcd":1,"idosos_prioridade_pcd":0,"total_idoso_pcd":1,"idosos_rf":30,"idosos_prioridade_rf":2,"total_idosos_rf":32,"idosos_unipessoal":16,"idosos_prioridade_unipessoal":0,"total_idosos_unipessoal":16}];
+        const bairros = ["Jardim S\u00edlvio Sampaio", "Jardim Su\u00edna", "Jardim Iracema", "Jardim Maria Luiza", "Jardim Guaciara", "Jardim Clementino", "Jardim Tri\u00e2ngulo", "Jardim Saint Moritz", "Jardim das Margaridas", "Jardim S\u00e3o Judas Tadeu", "Vila Indiana", "Jardim Comunit\u00e1rio", "Vila Francisco Remeikis", "Jardim Elizabete", "Conjunto Residencial Belo Horizonte", "Jardim Maria Rosa", "Vila S\u00f4nia do Tabo\u00e3o", "Jardim Beatriz", "Parque Albina", "Jardim Tr\u00eas Irm\u00e3os", "Jardim Henriqueta", "Parque Tabo\u00e3o", "Jardim S\u00e3o Miguel", "Ch\u00e1cara Agrindus", "Jardim Pedro Gon\u00e7alves", "Jardim Bontempo", "Centro", "Jardim da Gl\u00f3ria", "Parque Assun\u00e7\u00e3o", "Jardim Guayana", "Jardim Caner", "Parque Monte Alegre", "Jardim Santa Terezinha", "Vila Santa Luzia", "Jardim Kuabara", "Jardim Pazini", "Jardim Frei Galv\u00e3o", "Jardim Para\u00edso", "Jardim Ouro Preto", "Jardim Tabo\u00e3o", "Jardim Monte Alegre", "Jardim Santa Rosa", "Jardim da Serra", "Jardim Am\u00e9rica", "Parque Santos Dumont", "Jardim Virg\u00ednia", "Parque Residencial M\u00f4nica", "Jardim S\u00e3o Salvador", "Jardim Leme", "Parque Jacarand\u00e1", "Jardim Santa Cruz", "Parque S\u00e3o Joaquim", "Jardim Maria da Costa", "Jardim Fl\u00f3rida", "Jardim Marlene", "Vila Carmelina Gon\u00e7alves", "Jardim Maria Helena", "Jardim Salete", "Parque Pinheiros", "N\u00facleo Residencial Isabela", "Jardim Record", "Jardim Saporito", "Arraial Paulista", "Vila Iasi", "Jardim Bonanza", "Jardim Panorama", "Parque Industrial Daci", "Jardim Sc\u00e2ndia", "Jardim Santo Onofre", "Jardim Altos do Taboao", "Parque Industrial Tabo\u00e3o da Serra", "Jardim Vit\u00f3ria", "Jardim Mituzi", "Jardim S\u00e3o Luiz", "Cidade Intercap", "Jardim Mirna", "Parque das Cigarreiras", "Parque Laguna", "Jardim Tr\u00eas Marias", "Morada dos P\u00e1ssaros", "Condom\u00ednio Iolanda", "Jardim Novo Record", "Jardim Trianon", "Jardim Freitas J\u00fanior", "S\u00edtio das Madres", "Vila Mafalda", "P\u00f4r do Sol", "Jardim S\u00e3o Jo\u00e3o", "Jardim Roberto", "Jardim Pirajussara", "Jardim Oliveiras", "Parque Marab\u00e1", "Jardim S\u00e3o Mateus", "Jardim Santa Cec\u00edlia", "Jardim Irapua", "Jardim S\u00e3o Paulo", "Jardim Nova Esperan\u00e7a", "Jardim Helena", "Parque Industrial das Oliveiras", "Vila das Oliveiras", "Jardim Wanda"];
+        const variaveis = {"populacao": "Popula\u00e7\u00e3o Total", "percentual_idoso_populacao": "% Idosos na Popula\u00e7\u00e3o", "idosos": "Idosos (60-84 anos)", "idosos_prioridade": "Idosos Prioridade (85+ anos)", "idosos_total": "Total Idosos (60+ anos)", "idosos_pcd": "Idosos com Defici\u00eancia", "idosos_prioridade_pcd": "Idosos Prioridade com Defici\u00eancia", "total_idoso_pcd": "Total Idosos com Defici\u00eancia", "idosos_rf": "Idosos Refer\u00eancia Familiar", "idosos_prioridade_rf": "Idosos Prioridade Refer\u00eancia Familiar", "total_idosos_rf": "Total Idosos Refer\u00eancia Familiar", "idosos_unipessoal": "Idosos que Moram Sozinhos", "idosos_prioridade_unipessoal": "Idosos Prioridade que Moram Sozinhos", "total_idosos_unipessoal": "Total Idosos que Moram Sozinhos"};
+        const nomeColunaBairro = "bairro";
+        
+        // Atualizar valor do range
+        document.getElementById('num-bairros').addEventListener('input', function() {
+            document.getElementById('num-bairros-value').textContent = this.value;
+        });
+        
+        // Selecionar todos/nenhum
+        function selectAll(select) {
+            document.querySelectorAll('.variables-grid input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = select;
+            });
+        }
+        
+        // Função para obter variáveis selecionadas
+        function getSelectedVariables() {
+            const checkboxes = document.querySelectorAll('.variables-grid input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+        
+        // Função para atualizar o gráfico e tabela
+        function updateChart() {
+            const variaveisSelecionadas = getSelectedVariables();
+            const numBairros = parseInt(document.getElementById('num-bairros').value);
+            
+            if (variaveisSelecionadas.length === 0) {
+                alert("Selecione pelo menos uma variável!");
+                return;
+            }
+            
+            // Criar dataset para análise
+            const dadosParaAnalise = dados.map(item => {
+                const novoItem = { bairro: item[nomeColunaBairro] };
+                variaveisSelecionadas.forEach(variavel => {
+                    novoItem[variavel] = item[variavel];
+                });
+                return novoItem;
+            });
+            
+            // Calcular score combinado (soma simples das variáveis normalizadas)
+            dadosParaAnalise.forEach(item => {
+                let score = 0;
+                variaveisSelecionadas.forEach(variavel => {
+                    // Normalização simples (0-1)
+                    const valores = dadosParaAnalise.map(d => d[variavel]);
+                    const min = Math.min(...valores);
+                    const max = Math.max(...valores);
+                    score += max > min ? (item[variavel] - min) / (max - min) : 0;
+                });
+                item.score = score;
+            });
+            
+            // Ordenar por score
+            const dadosOrdenados = [...dadosParaAnalise].sort((a, b) => b.score - a.score);
+            const topBairros = dadosOrdenados.slice(0, numBairros);
+            
+            // Preparar dados para Plotly
+            const traces = variaveisSelecionadas.map(variavel => {
+                return {
+                    x: topBairros.map(item => item.bairro),
+                    y: topBairros.map(item => item[variavel]),
+                    name: variaveis[variavel],
+                    type: 'bar'
+                };
+            });
+            
+            const layout = {
+                title: `Top ${numBairros} Bairros - Análise Combinada`,
+                barmode: 'group',
+                xaxis: { title: 'Bairros' },
+                yaxis: { title: 'Valores' },
+                legend: { orientation: 'h', y: -0.2 },
+                margin: { b: 150 },
+                height: 600
+            };
+            
+            Plotly.newPlot('grafico', traces, layout);
+            
+            // Atualizar tabela com todas as variáveis selecionadas
+            updateTable(topBairros, variaveisSelecionadas);
+        }
+        
+        // Função para atualizar a tabela
+        function updateTable(data, variaveisSelecionadas) {
+            let html = `<table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Bairro</th>
+                        ${variaveisSelecionadas.map(v => `<th>${variaveis[v]}</th>`).join('')}
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            data.forEach(item => {
+                html += `<tr>
+                    <td>${item.bairro}</td>
+                    ${variaveisSelecionadas.map(v => `<td>${typeof item[v] === 'number' ? item[v].toLocaleString('pt-BR') : item[v]}</td>`).join('')}
+                    <td>${item.score.toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('tabela-dados').innerHTML = html;
+        }
+        
+        // Inicializar o gráfico ao carregar a página
+        document.addEventListener('DOMContentLoaded', updateChart);
+    </script>
+</body>
+</html>

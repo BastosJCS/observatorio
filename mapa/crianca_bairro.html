@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Crianças e Adolescentes</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .variables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        .variable-checkbox {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .chart-container { margin-top: 30px; }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <h1 class="mb-4">Pesquisa de variável por Bairro</h1>
+
+    <div class="control-panel mb-4">
+        <h3 class="mb-3">Selecione os Indicadores:</h3>
+        <div class="variables-grid">
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-populacao" value="populacao"
+                    >
+                População Total
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-infantojuvenil" value="infantojuvenil"
+                    >
+                População Infantojuvenil (0-17)
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-primeirainfancia" value="primeirainfancia"
+                    >
+                Crianças de 0 a 3 anos
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-primeirainfanciapcd" value="primeirainfanciapcd"
+                    >
+                Crianças de 0 a 3 anos com Deficiência
+                <span class="badge bg-warning text-dark">PCD</span>
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-crianca6" value="crianca6"
+                    >
+                Crianças de 4 a 6 anos
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-crianca6pcd" value="crianca6pcd"
+                    >
+                Crianças de 4 a 6 anos com Deficiência
+                <span class="badge bg-warning text-dark">PCD</span>
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-crianca" value="crianca"
+                    checked>
+                Crianças de 7 a 11 anos
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-criancapcd" value="criancapcd"
+                    >
+                Crianças de 7 a 11 anos com Deficiência
+                <span class="badge bg-warning text-dark">PCD</span>
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-adolescente" value="adolescente"
+                    checked>
+                Adolescentes
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-adolescentepcd" value="adolescentepcd"
+                    >
+                Adolescentes com Deficiência
+                <span class="badge bg-warning text-dark">PCD</span>
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-peti" value="peti"
+                    >
+                Marcação PETI (Trabalho Infantil)
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-medida" value="medida"
+                    >
+                Medida Socioeducativa
+                
+              
+            </label>
+            
+            <label class="variable-checkbox">
+                <input type="checkbox" id="var-extremapobreza" value="extremapobreza"
+                    checked>
+                Em extrema pobreza
+                
+              
+            </label>
+            
+        </div>
+
+        <div class="mt-4 row">
+            <div class="col-md-6">
+                <label for="num-bairros" class="form-label">Número de Bairros: <span id="num-bairros-value">5</span></label>
+                <input type="range" id="num-bairros" min="1" max="20" value="5" class="form-range">
+            </div>
+            <div class="col-md-6 text-end">
+                <button onclick="updateChart()" class="btn btn-primary">Atualizar</button>
+                <button onclick="selectAll(true)" class="btn btn-outline-secondary">Todos</button>
+                <button onclick="selectAll(false)" class="btn btn-outline-secondary">Nenhum</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div id="grafico"></div>
+    </div>
+
+    <div class="table-container mt-4">
+        <h3>Dados Detalhados</h3>
+        <div id="tabela-dados" class="table-responsive"></div>
+    </div>
+</div>
+
+<script>
+const dados = [{"bairro":"Jardim S\u00edlvio Sampaio","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.642285095454582, -46.790461648144124","populacao":1709,"infantojuvenil":"33,65%","primeirainfancia":86,"primeirainfanciapcd":1,"crianca6":108,"crianca6pcd":5,"crianca":195,"criancapcd":10,"adolescente":186,"adolescentepcd":11,"peti":0,"medida":0,"extremapobreza":186},{"bairro":"Jardim Su\u00edna","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.640521173453372, -46.79298477842206","populacao":2426,"infantojuvenil":"34,13%","primeirainfancia":127,"primeirainfanciapcd":1,"crianca6":148,"crianca6pcd":11,"crianca":263,"criancapcd":17,"adolescente":290,"adolescentepcd":23,"peti":0,"medida":2,"extremapobreza":243},{"bairro":"Jardim Iracema","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63714667808617, -46.785535487797475","populacao":1879,"infantojuvenil":"35,55%","primeirainfancia":104,"primeirainfanciapcd":1,"crianca6":122,"crianca6pcd":5,"crianca":188,"criancapcd":16,"adolescente":254,"adolescentepcd":18,"peti":1,"medida":1,"extremapobreza":188},{"bairro":"Jardim Maria Luiza","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63844067818509, -46.78882634083727","populacao":1362,"infantojuvenil":"34,21%","primeirainfancia":79,"primeirainfanciapcd":0,"crianca6":79,"crianca6pcd":2,"crianca":149,"criancapcd":5,"adolescente":159,"adolescentepcd":10,"peti":0,"medida":1,"extremapobreza":142},{"bairro":"Jardim Guaciara","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63551913090944, -46.79081005727267","populacao":479,"infantojuvenil":"31,73%","primeirainfancia":16,"primeirainfanciapcd":0,"crianca6":32,"crianca6pcd":0,"crianca":51,"criancapcd":7,"adolescente":53,"adolescentepcd":3,"peti":1,"medida":2,"extremapobreza":36},{"bairro":"Jardim Clementino","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.63531676360255, -46.78191650649442","populacao":2035,"infantojuvenil":"29,29%","primeirainfancia":92,"primeirainfanciapcd":2,"crianca6":100,"crianca6pcd":7,"crianca":196,"criancapcd":13,"adolescente":208,"adolescentepcd":20,"peti":0,"medida":0,"extremapobreza":226},{"bairro":"Jardim Tri\u00e2ngulo","macro_regiao":"Clementino","cor":"blue","coordenadas":"-23.634819845039654, -46.788708428165315","populacao":251,"infantojuvenil":"33,47%","primeirainfancia":18,"primeirainfanciapcd":0,"crianca6":23,"crianca6pcd":2,"crianca":24,"criancapcd":0,"adolescente":19,"adolescentepcd":0,"peti":1,"medida":0,"extremapobreza":27},{"bairro":"Jardim Saint Moritz","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.623074279506735, -46.802333946399","populacao":3879,"infantojuvenil":"35,09%","primeirainfancia":215,"primeirainfanciapcd":3,"crianca6":220,"crianca6pcd":14,"crianca":448,"criancapcd":19,"adolescente":478,"adolescentepcd":15,"peti":0,"medida":0,"extremapobreza":364},{"bairro":"Jardim das Margaridas","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.626264823637044, -46.80919709886484","populacao":2695,"infantojuvenil":"35,29%","primeirainfancia":149,"primeirainfanciapcd":3,"crianca6":162,"crianca6pcd":10,"crianca":276,"criancapcd":12,"adolescente":364,"adolescentepcd":27,"peti":0,"medida":2,"extremapobreza":311},{"bairro":"Jardim S\u00e3o Judas Tadeu","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62886337651195, -46.8078150632527","populacao":3994,"infantojuvenil":"34,55%","primeirainfancia":216,"primeirainfanciapcd":6,"crianca6":265,"crianca6pcd":11,"crianca":434,"criancapcd":22,"adolescente":465,"adolescentepcd":24,"peti":0,"medida":3,"extremapobreza":400},{"bairro":"Vila Indiana","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62282200088364, -46.80577480617705","populacao":1796,"infantojuvenil":"34,91%","primeirainfancia":91,"primeirainfanciapcd":2,"crianca6":112,"crianca6pcd":4,"crianca":220,"criancapcd":9,"adolescente":204,"adolescentepcd":4,"peti":0,"medida":1,"extremapobreza":185},{"bairro":"Jardim Comunit\u00e1rio","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.62385321777189, -46.810179220751166","populacao":1702,"infantojuvenil":"38,48%","primeirainfancia":95,"primeirainfanciapcd":1,"crianca6":145,"crianca6pcd":3,"crianca":208,"criancapcd":4,"adolescente":207,"adolescentepcd":11,"peti":0,"medida":1,"extremapobreza":192},{"bairro":"Vila Francisco Remeikis","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.619498213907526, -46.80472675489248","populacao":350,"infantojuvenil":"30,57%","primeirainfancia":16,"primeirainfanciapcd":0,"crianca6":19,"crianca6pcd":1,"crianca":33,"criancapcd":2,"adolescente":39,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":103},{"bairro":"Jardim Elizabete","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.621990452231135, -46.80720432472902","populacao":479,"infantojuvenil":"33,82%","primeirainfancia":20,"primeirainfanciapcd":0,"crianca6":30,"crianca6pcd":4,"crianca":53,"criancapcd":3,"adolescente":59,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":42},{"bairro":"Conjunto Residencial Belo Horizonte","macro_regiao":"Indiana","cor":"black","coordenadas":"-23.620515938070263, -46.80710991123792","populacao":6,"infantojuvenil":"16,67%","primeirainfancia":1,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":0,"criancapcd":0,"adolescente":0,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":1},{"bairro":"Jardim Maria Rosa","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61527149534125, -46.76375396061972","populacao":1854,"infantojuvenil":"28,80%","primeirainfancia":67,"primeirainfanciapcd":1,"crianca6":111,"crianca6pcd":9,"crianca":174,"criancapcd":8,"adolescente":182,"adolescentepcd":8,"peti":0,"medida":0,"extremapobreza":187},{"bairro":"Vila S\u00f4nia do Tabo\u00e3o","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61869375768245, -46.77086274504125","populacao":392,"infantojuvenil":"28,57%","primeirainfancia":21,"primeirainfanciapcd":0,"crianca6":27,"crianca6pcd":1,"crianca":30,"criancapcd":0,"adolescente":34,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":56},{"bairro":"Jardim Beatriz","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.618272781362712, -46.76909239160325","populacao":642,"infantojuvenil":"30,22%","primeirainfancia":25,"primeirainfanciapcd":0,"crianca6":26,"crianca6pcd":0,"crianca":65,"criancapcd":4,"adolescente":78,"adolescentepcd":6,"peti":0,"medida":0,"extremapobreza":50},{"bairro":"Parque Albina","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.61821822676501, -46.765660682645624","populacao":357,"infantojuvenil":"34,73%","primeirainfancia":20,"primeirainfanciapcd":0,"crianca6":29,"crianca6pcd":0,"crianca":32,"criancapcd":1,"adolescente":43,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":33},{"bairro":"Jardim Tr\u00eas Irm\u00e3os","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.617107678761553, -46.76292856309184","populacao":113,"infantojuvenil":"26,55%","primeirainfancia":5,"primeirainfanciapcd":0,"crianca6":7,"crianca6pcd":0,"crianca":10,"criancapcd":1,"adolescente":8,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":11},{"bairro":"Jardim Henriqueta","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.620733847151037, -46.76754769006134","populacao":614,"infantojuvenil":"29,32%","primeirainfancia":14,"primeirainfanciapcd":1,"crianca6":29,"crianca6pcd":5,"crianca":60,"criancapcd":9,"adolescente":77,"adolescentepcd":5,"peti":0,"medida":1,"extremapobreza":43},{"bairro":"Parque Tabo\u00e3o","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.618668542458387, -46.771833987348494","populacao":557,"infantojuvenil":"28,01%","primeirainfancia":16,"primeirainfanciapcd":0,"crianca6":24,"crianca6pcd":1,"crianca":54,"criancapcd":7,"adolescente":62,"adolescentepcd":5,"peti":0,"medida":0,"extremapobreza":51},{"bairro":"Jardim S\u00e3o Miguel","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.612876729470308, -46.77175787498627","populacao":112,"infantojuvenil":"32,14%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":3,"crianca6pcd":1,"crianca":15,"criancapcd":0,"adolescente":15,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":12},{"bairro":"Ch\u00e1cara Agrindus","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.613094109832087, -46.765230627351656","populacao":422,"infantojuvenil":"18,48%","primeirainfancia":9,"primeirainfanciapcd":0,"crianca6":16,"crianca6pcd":5,"crianca":21,"criancapcd":3,"adolescente":32,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":23},{"bairro":"Jardim Pedro Gon\u00e7alves","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.614847378484022, -46.77530044981345","populacao":55,"infantojuvenil":"16,36%","primeirainfancia":1,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":5,"criancapcd":0,"adolescente":3,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":4},{"bairro":"Jardim Bontempo","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.6114429949362, -46.759310294852575","populacao":150,"infantojuvenil":"20,00%","primeirainfancia":1,"primeirainfanciapcd":0,"crianca6":7,"crianca6pcd":2,"crianca":11,"criancapcd":0,"adolescente":11,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":7},{"bairro":"Centro","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.607953406653998, -46.75272941245849","populacao":52,"infantojuvenil":"21,15%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":1,"crianca6pcd":0,"crianca":5,"criancapcd":3,"adolescente":5,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":4},{"bairro":"Jardim da Gl\u00f3ria","macro_regiao":"Maria Rosa","cor":"red","coordenadas":"-23.610177094051934, -46.75602464189332","populacao":4,"infantojuvenil":"0,00%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":0,"criancapcd":0,"adolescente":0,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":0},{"bairro":"Parque Assun\u00e7\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.603506416636826, -46.76125602814492","populacao":472,"infantojuvenil":"25,21%","primeirainfancia":13,"primeirainfanciapcd":0,"crianca6":17,"crianca6pcd":2,"crianca":48,"criancapcd":7,"adolescente":41,"adolescentepcd":2,"peti":0,"medida":1,"extremapobreza":56},{"bairro":"Jardim Guayana","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.598023425462138, -46.76246569428526","populacao":329,"infantojuvenil":"33,43%","primeirainfancia":16,"primeirainfanciapcd":1,"crianca6":16,"crianca6pcd":1,"crianca":35,"criancapcd":1,"adolescente":43,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":36},{"bairro":"Jardim Caner","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.6039321848323, -46.75168556628612","populacao":341,"infantojuvenil":"31,96%","primeirainfancia":14,"primeirainfanciapcd":1,"crianca6":26,"crianca6pcd":0,"crianca":34,"criancapcd":1,"adolescente":35,"adolescentepcd":5,"peti":0,"medida":0,"extremapobreza":37},{"bairro":"Parque Monte Alegre","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60430063942033, -46.77257858378486","populacao":798,"infantojuvenil":"27,69%","primeirainfancia":41,"primeirainfanciapcd":1,"crianca6":50,"crianca6pcd":2,"crianca":53,"criancapcd":3,"adolescente":77,"adolescentepcd":3,"peti":0,"medida":1,"extremapobreza":102},{"bairro":"Jardim Santa Terezinha","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601620402322194, -46.75723118980641","populacao":442,"infantojuvenil":"28,73%","primeirainfancia":20,"primeirainfanciapcd":0,"crianca6":20,"crianca6pcd":1,"crianca":44,"criancapcd":2,"adolescente":43,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":48},{"bairro":"Vila Santa Luzia","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.606230220200903, -46.753602812321205","populacao":206,"infantojuvenil":"26,70%","primeirainfancia":7,"primeirainfanciapcd":0,"crianca6":11,"crianca6pcd":0,"crianca":18,"criancapcd":0,"adolescente":19,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":29},{"bairro":"Jardim Kuabara","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.603459603403202, -46.75596119031995","populacao":490,"infantojuvenil":"28,57%","primeirainfancia":19,"primeirainfanciapcd":0,"crianca6":21,"crianca6pcd":1,"crianca":43,"criancapcd":2,"adolescente":57,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":50},{"bairro":"Jardim Pazini","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.602509628771532, -46.753931599087075","populacao":332,"infantojuvenil":"33,73%","primeirainfancia":14,"primeirainfanciapcd":0,"crianca6":20,"crianca6pcd":1,"crianca":39,"criancapcd":2,"adolescente":39,"adolescentepcd":2,"peti":0,"medida":1,"extremapobreza":41},{"bairro":"Jardim Frei Galv\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60011133008812, -46.75938177447562","populacao":282,"infantojuvenil":"29,08%","primeirainfancia":13,"primeirainfanciapcd":0,"crianca6":14,"crianca6pcd":0,"crianca":27,"criancapcd":1,"adolescente":28,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":32},{"bairro":"Jardim Para\u00edso","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.597945309756724, -46.75930170859383","populacao":130,"infantojuvenil":"32,31%","primeirainfancia":8,"primeirainfanciapcd":0,"crianca6":4,"crianca6pcd":0,"crianca":17,"criancapcd":1,"adolescente":13,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":14},{"bairro":"Jardim Ouro Preto","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.59857321233405, -46.76338556884436","populacao":403,"infantojuvenil":"33,00%","primeirainfancia":13,"primeirainfanciapcd":1,"crianca6":20,"crianca6pcd":2,"crianca":45,"criancapcd":2,"adolescente":55,"adolescentepcd":6,"peti":0,"medida":0,"extremapobreza":32},{"bairro":"Jardim Tabo\u00e3o","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.59960868513267, -46.7589031938705","populacao":57,"infantojuvenil":"31,58%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":5,"crianca6pcd":0,"crianca":4,"criancapcd":0,"adolescente":6,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":7},{"bairro":"Jardim Monte Alegre","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60404921651781, -46.7663188151975","populacao":777,"infantojuvenil":"26,64%","primeirainfancia":27,"primeirainfanciapcd":2,"crianca6":50,"crianca6pcd":6,"crianca":68,"criancapcd":5,"adolescente":62,"adolescentepcd":6,"peti":0,"medida":0,"extremapobreza":78},{"bairro":"Jardim Santa Rosa","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.600072160432255, -46.76287615393666","populacao":284,"infantojuvenil":"30,63%","primeirainfancia":10,"primeirainfanciapcd":0,"crianca6":20,"crianca6pcd":1,"crianca":28,"criancapcd":2,"adolescente":29,"adolescentepcd":0,"peti":0,"medida":1,"extremapobreza":39},{"bairro":"Jardim da Serra","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601285896230156, -46.77106250833405","populacao":57,"infantojuvenil":"42,11%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":3,"crianca6pcd":0,"crianca":7,"criancapcd":1,"adolescente":11,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":2},{"bairro":"Jardim Am\u00e9rica","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.607055280009334, -46.77424044277341","populacao":287,"infantojuvenil":"23,00%","primeirainfancia":10,"primeirainfanciapcd":1,"crianca6":9,"crianca6pcd":1,"crianca":16,"criancapcd":2,"adolescente":31,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":25},{"bairro":"Parque Santos Dumont","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60750622751255, -46.758814698017666","populacao":96,"infantojuvenil":"11,46%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":4,"crianca6pcd":1,"crianca":3,"criancapcd":0,"adolescente":4,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":3},{"bairro":"Jardim Virg\u00ednia","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.60136056763698, -46.75867267842593","populacao":51,"infantojuvenil":"29,41%","primeirainfancia":2,"primeirainfanciapcd":0,"crianca6":3,"crianca6pcd":0,"crianca":2,"criancapcd":0,"adolescente":8,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":5},{"bairro":"Parque Residencial M\u00f4nica","macro_regiao":"Monte Alegre","cor":"lightgray","coordenadas":"-23.601817975147625, -46.7687540400632","populacao":3,"infantojuvenil":"0,00%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":0,"criancapcd":0,"adolescente":0,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":0},{"bairro":"Jardim S\u00e3o Salvador","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.637620605851822, -46.797019667979995","populacao":1423,"infantojuvenil":"29,87%","primeirainfancia":72,"primeirainfanciapcd":1,"crianca6":61,"crianca6pcd":3,"crianca":154,"criancapcd":7,"adolescente":138,"adolescentepcd":10,"peti":0,"medida":0,"extremapobreza":128},{"bairro":"Jardim Leme","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.645210152856233, -46.792549893509445","populacao":1638,"infantojuvenil":"35,59%","primeirainfancia":84,"primeirainfanciapcd":1,"crianca6":111,"crianca6pcd":4,"crianca":183,"criancapcd":4,"adolescente":205,"adolescentepcd":3,"peti":2,"medida":0,"extremapobreza":171},{"bairro":"Parque Jacarand\u00e1","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.64311889636783, -46.80012048609402","populacao":3221,"infantojuvenil":"34,12%","primeirainfancia":158,"primeirainfanciapcd":2,"crianca6":192,"crianca6pcd":14,"crianca":349,"criancapcd":12,"adolescente":400,"adolescentepcd":6,"peti":5,"medida":0,"extremapobreza":331},{"bairro":"Jardim Santa Cruz","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.641470197504944, -46.80271490516157","populacao":826,"infantojuvenil":"30,15%","primeirainfancia":33,"primeirainfanciapcd":0,"crianca6":45,"crianca6pcd":0,"crianca":93,"criancapcd":5,"adolescente":78,"adolescentepcd":5,"peti":1,"medida":0,"extremapobreza":75},{"bairro":"Parque S\u00e3o Joaquim","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642627294556217, -46.79602939773166","populacao":1447,"infantojuvenil":"35,80%","primeirainfancia":63,"primeirainfanciapcd":1,"crianca6":104,"crianca6pcd":3,"crianca":156,"criancapcd":6,"adolescente":195,"adolescentepcd":10,"peti":2,"medida":0,"extremapobreza":157},{"bairro":"Jardim Maria da Costa","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642539569219643, -46.803653674471455","populacao":378,"infantojuvenil":"33,60%","primeirainfancia":16,"primeirainfanciapcd":0,"crianca6":26,"crianca6pcd":2,"crianca":42,"criancapcd":3,"adolescente":43,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":25},{"bairro":"Jardim Fl\u00f3rida","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.642156154983322, -46.804936415059935","populacao":170,"infantojuvenil":"33,53%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":11,"crianca6pcd":1,"crianca":19,"criancapcd":3,"adolescente":24,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":15},{"bairro":"Jardim Marlene","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.640028330039726, -46.79805730133223","populacao":34,"infantojuvenil":"38,24%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":6,"crianca6pcd":0,"crianca":3,"criancapcd":0,"adolescente":1,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":2},{"bairro":"Vila Carmelina Gon\u00e7alves","macro_regiao":"Pirajussara","cor":"orange","coordenadas":"-23.641521953502636, -46.79840205068296","populacao":190,"infantojuvenil":"26,32%","primeirainfancia":5,"primeirainfanciapcd":0,"crianca6":4,"crianca6pcd":1,"crianca":18,"criancapcd":0,"adolescente":23,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":10},{"bairro":"Jardim Maria Helena","macro_regiao":"Salete","cor":"beige","coordenadas":"-23.62656455520226, -46.80356806282134","populacao":1378,"infantojuvenil":"32,44%","primeirainfancia":64,"primeirainfanciapcd":1,"crianca6":74,"crianca6pcd":5,"crianca":146,"criancapcd":6,"adolescente":163,"adolescentepcd":8,"peti":0,"medida":2,"extremapobreza":145},{"bairro":"Jardim Salete","macro_regiao":"Salete","cor":"beige","coordenadas":"-23.623480422012634, -46.7983473323882","populacao":2774,"infantojuvenil":"31,33%","primeirainfancia":141,"primeirainfanciapcd":3,"crianca6":154,"crianca6pcd":4,"crianca":282,"criancapcd":12,"adolescente":292,"adolescentepcd":10,"peti":0,"medida":1,"extremapobreza":232},{"bairro":"Parque Pinheiros","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.625815338109142, -46.783157775290846","populacao":7792,"infantojuvenil":"33,11%","primeirainfancia":408,"primeirainfanciapcd":8,"crianca6":454,"crianca6pcd":21,"crianca":821,"criancapcd":37,"adolescente":897,"adolescentepcd":52,"peti":1,"medida":6,"extremapobreza":691},{"bairro":"N\u00facleo Residencial Isabela","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.620664150343714, -46.79255297023719","populacao":295,"infantojuvenil":"31,86%","primeirainfancia":4,"primeirainfanciapcd":0,"crianca6":11,"crianca6pcd":0,"crianca":38,"criancapcd":1,"adolescente":41,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":23},{"bairro":"Jardim Record","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.628766807264714, -46.788760959371196","populacao":9968,"infantojuvenil":"36,71%","primeirainfancia":631,"primeirainfanciapcd":8,"crianca6":683,"crianca6pcd":20,"crianca":1125,"criancapcd":47,"adolescente":1220,"adolescentepcd":39,"peti":9,"medida":15,"extremapobreza":1069},{"bairro":"Jardim Saporito","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.632655439049273, -46.78687012027559","populacao":1080,"infantojuvenil":"33,24%","primeirainfancia":64,"primeirainfanciapcd":1,"crianca6":67,"crianca6pcd":1,"crianca":89,"criancapcd":2,"adolescente":139,"adolescentepcd":7,"peti":4,"medida":0,"extremapobreza":99},{"bairro":"Arraial Paulista","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.620808682755953, -46.789750447733546","populacao":746,"infantojuvenil":"30,56%","primeirainfancia":35,"primeirainfanciapcd":2,"crianca6":36,"crianca6pcd":1,"crianca":65,"criancapcd":1,"adolescente":92,"adolescentepcd":3,"peti":0,"medida":1,"extremapobreza":67},{"bairro":"Vila Iasi","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.6210452794143, -46.790323399080414","populacao":203,"infantojuvenil":"22,17%","primeirainfancia":5,"primeirainfanciapcd":0,"crianca6":4,"crianca6pcd":1,"crianca":17,"criancapcd":0,"adolescente":19,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":20},{"bairro":"Jardim Bonanza","macro_regiao":"Saporito","cor":"purple","coordenadas":"-23.61903525809029, -46.79183422076426","populacao":22,"infantojuvenil":"40,91%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":2,"criancapcd":0,"adolescente":7,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":4},{"bairro":"Jardim Panorama","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.636860377628995, -46.80426402765113","populacao":1751,"infantojuvenil":"32,10%","primeirainfancia":80,"primeirainfanciapcd":2,"crianca6":102,"crianca6pcd":3,"crianca":184,"criancapcd":10,"adolescente":196,"adolescentepcd":14,"peti":5,"medida":1,"extremapobreza":132},{"bairro":"Parque Industrial Daci","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.633762766590035, -46.810610278545425","populacao":502,"infantojuvenil":"35,66%","primeirainfancia":22,"primeirainfanciapcd":0,"crianca6":32,"crianca6pcd":2,"crianca":61,"criancapcd":2,"adolescente":64,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":42},{"bairro":"Jardim Sc\u00e2ndia","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.634621459408713, -46.80542588197921","populacao":1289,"infantojuvenil":"33,36%","primeirainfancia":64,"primeirainfanciapcd":4,"crianca6":80,"crianca6pcd":1,"crianca":128,"criancapcd":5,"adolescente":158,"adolescentepcd":6,"peti":0,"medida":0,"extremapobreza":90},{"bairro":"Jardim Santo Onofre","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.639456214688295, -46.80612071282002","populacao":1276,"infantojuvenil":"26,88%","primeirainfancia":39,"primeirainfanciapcd":0,"crianca6":55,"crianca6pcd":2,"crianca":115,"criancapcd":4,"adolescente":134,"adolescentepcd":11,"peti":0,"medida":0,"extremapobreza":77},{"bairro":"Jardim Altos do Taboao","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.629613813952822, -46.81267247421483","populacao":102,"infantojuvenil":"31,37%","primeirainfancia":4,"primeirainfanciapcd":0,"crianca6":9,"crianca6pcd":1,"crianca":10,"criancapcd":0,"adolescente":9,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":12},{"bairro":"Parque Industrial Tabo\u00e3o da Serra","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63892124299421, -46.80856268981676","populacao":7,"infantojuvenil":"71,43%","primeirainfancia":1,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":1,"criancapcd":0,"adolescente":3,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":1},{"bairro":"Jardim Vit\u00f3ria","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.634325588599513, -46.80226663220895","populacao":449,"infantojuvenil":"31,40%","primeirainfancia":27,"primeirainfanciapcd":0,"crianca6":27,"crianca6pcd":3,"crianca":40,"criancapcd":1,"adolescente":47,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":27},{"bairro":"Jardim Mituzi","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63856816506924, -46.80111077475152","populacao":523,"infantojuvenil":"25,43%","primeirainfancia":13,"primeirainfanciapcd":0,"crianca6":34,"crianca6pcd":1,"crianca":43,"criancapcd":3,"adolescente":43,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":32},{"bairro":"Jardim S\u00e3o Luiz","macro_regiao":"Sc\u00e2ndia","cor":"gray","coordenadas":"-23.63636295232412, -46.80991366283436","populacao":416,"infantojuvenil":"32,21%","primeirainfancia":26,"primeirainfanciapcd":2,"crianca6":28,"crianca6pcd":3,"crianca":39,"criancapcd":1,"adolescente":41,"adolescentepcd":3,"peti":1,"medida":0,"extremapobreza":33},{"bairro":"Cidade Intercap","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.610992288789745, -46.7773686430652","populacao":1931,"infantojuvenil":"33,09%","primeirainfancia":94,"primeirainfanciapcd":5,"crianca6":91,"crianca6pcd":4,"crianca":208,"criancapcd":11,"adolescente":246,"adolescentepcd":16,"peti":0,"medida":1,"extremapobreza":170},{"bairro":"Jardim Mirna","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.612413807242152, -46.785115195300115","populacao":969,"infantojuvenil":"34,67%","primeirainfancia":44,"primeirainfanciapcd":1,"crianca6":58,"crianca6pcd":0,"crianca":112,"criancapcd":7,"adolescente":122,"adolescentepcd":6,"peti":0,"medida":1,"extremapobreza":95},{"bairro":"Parque das Cigarreiras","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.60693251715917, -46.784008220357144","populacao":233,"infantojuvenil":"38,63%","primeirainfancia":6,"primeirainfanciapcd":1,"crianca6":24,"crianca6pcd":1,"crianca":29,"criancapcd":2,"adolescente":31,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":15},{"bairro":"Parque Laguna","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.614265027616156, -46.79797676117048","populacao":698,"infantojuvenil":"30,66%","primeirainfancia":38,"primeirainfanciapcd":1,"crianca6":36,"crianca6pcd":4,"crianca":63,"criancapcd":6,"adolescente":77,"adolescentepcd":7,"peti":0,"medida":1,"extremapobreza":78},{"bairro":"Jardim Tr\u00eas Marias","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.61392424633577, -46.78946330566392","populacao":628,"infantojuvenil":"30,41%","primeirainfancia":33,"primeirainfanciapcd":3,"crianca6":33,"crianca6pcd":4,"crianca":56,"criancapcd":3,"adolescente":69,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":61},{"bairro":"Morada dos P\u00e1ssaros","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.60874607207493, -46.78278984873739","populacao":1,"infantojuvenil":"0,00%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":0,"criancapcd":0,"adolescente":0,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":1},{"bairro":"Condom\u00ednio Iolanda","macro_regiao":"Tr\u00eas Marias","cor":"pink","coordenadas":"-23.617006619385403, -46.80690231429497","populacao":9,"infantojuvenil":"22,22%","primeirainfancia":0,"primeirainfanciapcd":0,"crianca6":0,"crianca6pcd":0,"crianca":0,"criancapcd":0,"adolescente":2,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":0},{"bairro":"Jardim Novo Record","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.626563450075132, -46.79254699284178","populacao":3162,"infantojuvenil":"36,53%","primeirainfancia":204,"primeirainfanciapcd":4,"crianca6":213,"crianca6pcd":9,"crianca":342,"criancapcd":16,"adolescente":396,"adolescentepcd":17,"peti":13,"medida":0,"extremapobreza":351},{"bairro":"Jardim Trianon","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.631645389282625, -46.79398589006","populacao":3864,"infantojuvenil":"34,52%","primeirainfancia":221,"primeirainfanciapcd":5,"crianca6":249,"crianca6pcd":19,"crianca":403,"criancapcd":26,"adolescente":461,"adolescentepcd":23,"peti":6,"medida":8,"extremapobreza":420},{"bairro":"Jardim Freitas J\u00fanior","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63354312495559, -46.79711748331501","populacao":1407,"infantojuvenil":"35,54%","primeirainfancia":80,"primeirainfanciapcd":2,"crianca6":103,"crianca6pcd":8,"crianca":149,"criancapcd":6,"adolescente":168,"adolescentepcd":3,"peti":2,"medida":1,"extremapobreza":205},{"bairro":"S\u00edtio das Madres","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.633780078750092, -46.79982364192776","populacao":1777,"infantojuvenil":"31,40%","primeirainfancia":104,"primeirainfanciapcd":1,"crianca6":97,"crianca6pcd":5,"crianca":172,"criancapcd":12,"adolescente":185,"adolescentepcd":11,"peti":0,"medida":0,"extremapobreza":181},{"bairro":"Vila Mafalda","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63367057079279, -46.79355619908621","populacao":733,"infantojuvenil":"29,60%","primeirainfancia":32,"primeirainfanciapcd":0,"crianca6":40,"crianca6pcd":1,"crianca":69,"criancapcd":4,"adolescente":76,"adolescentepcd":4,"peti":0,"medida":0,"extremapobreza":112},{"bairro":"P\u00f4r do Sol","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63129018926497, -46.798729237188226","populacao":137,"infantojuvenil":"33,58%","primeirainfancia":5,"primeirainfanciapcd":0,"crianca6":8,"crianca6pcd":1,"crianca":12,"criancapcd":1,"adolescente":21,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":15},{"bairro":"Jardim S\u00e3o Jo\u00e3o","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63650479361007, -46.79987590230553","populacao":255,"infantojuvenil":"32,16%","primeirainfancia":18,"primeirainfanciapcd":0,"crianca6":11,"crianca6pcd":1,"crianca":26,"criancapcd":4,"adolescente":27,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":10},{"bairro":"Jardim Roberto","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63655023767579, -46.79407768224038","populacao":824,"infantojuvenil":"29,37%","primeirainfancia":40,"primeirainfanciapcd":0,"crianca6":46,"crianca6pcd":5,"crianca":77,"criancapcd":7,"adolescente":79,"adolescentepcd":2,"peti":3,"medida":0,"extremapobreza":89},{"bairro":"Jardim Pirajussara","macro_regiao":"Trianon","cor":"lightblue","coordenadas":"-23.63528292910984, -46.79250621679909","populacao":222,"infantojuvenil":"31,98%","primeirainfancia":6,"primeirainfanciapcd":0,"crianca6":12,"crianca6pcd":4,"crianca":21,"criancapcd":0,"adolescente":32,"adolescentepcd":2,"peti":0,"medida":2,"extremapobreza":22},{"bairro":"Jardim Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.624301254776856, -46.77246485010716","populacao":1978,"infantojuvenil":"35,59%","primeirainfancia":120,"primeirainfanciapcd":1,"crianca6":133,"crianca6pcd":8,"crianca":227,"criancapcd":13,"adolescente":224,"adolescentepcd":10,"peti":0,"medida":0,"extremapobreza":223},{"bairro":"Parque Marab\u00e1","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.627018809842877, -46.7745607242017","populacao":1672,"infantojuvenil":"32,78%","primeirainfancia":79,"primeirainfanciapcd":1,"crianca6":103,"crianca6pcd":3,"crianca":179,"criancapcd":19,"adolescente":187,"adolescentepcd":15,"peti":0,"medida":0,"extremapobreza":151},{"bairro":"Jardim S\u00e3o Mateus","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.623401656069472, -46.7688888449768","populacao":320,"infantojuvenil":"30,63%","primeirainfancia":19,"primeirainfanciapcd":0,"crianca6":16,"crianca6pcd":3,"crianca":32,"criancapcd":2,"adolescente":31,"adolescentepcd":0,"peti":0,"medida":0,"extremapobreza":29},{"bairro":"Jardim Santa Cec\u00edlia","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.621797212078, -46.7876898014544","populacao":164,"infantojuvenil":"32,32%","primeirainfancia":3,"primeirainfanciapcd":0,"crianca6":7,"crianca6pcd":0,"crianca":21,"criancapcd":1,"adolescente":22,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":18},{"bairro":"Jardim Irapua","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.622285231118894, -46.780488663091504","populacao":510,"infantojuvenil":"36,08%","primeirainfancia":22,"primeirainfanciapcd":0,"crianca6":37,"crianca6pcd":2,"crianca":63,"criancapcd":1,"adolescente":62,"adolescentepcd":3,"peti":1,"medida":1,"extremapobreza":62},{"bairro":"Jardim S\u00e3o Paulo","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.61869699571225, -46.788196633224665","populacao":116,"infantojuvenil":"29,31%","primeirainfancia":4,"primeirainfanciapcd":0,"crianca6":8,"crianca6pcd":1,"crianca":6,"criancapcd":0,"adolescente":16,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":8},{"bairro":"Jardim Nova Esperan\u00e7a","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.620921088632986, -46.77336562447205","populacao":146,"infantojuvenil":"34,25%","primeirainfancia":10,"primeirainfanciapcd":1,"crianca6":11,"crianca6pcd":0,"crianca":17,"criancapcd":4,"adolescente":12,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":15},{"bairro":"Jardim Helena","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.62097774994097, -46.77206374748973","populacao":421,"infantojuvenil":"34,68%","primeirainfancia":16,"primeirainfanciapcd":0,"crianca6":27,"crianca6pcd":2,"crianca":43,"criancapcd":5,"adolescente":60,"adolescentepcd":1,"peti":0,"medida":0,"extremapobreza":56},{"bairro":"Parque Industrial das Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.621233780128918, -46.777928392741224","populacao":163,"infantojuvenil":"30,67%","primeirainfancia":7,"primeirainfanciapcd":0,"crianca6":14,"crianca6pcd":2,"crianca":15,"criancapcd":2,"adolescente":14,"adolescentepcd":3,"peti":0,"medida":0,"extremapobreza":16},{"bairro":"Vila das Oliveiras","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.61379927308609, -46.779316346706466","populacao":242,"infantojuvenil":"30,17%","primeirainfancia":8,"primeirainfanciapcd":0,"crianca6":11,"crianca6pcd":0,"crianca":29,"criancapcd":2,"adolescente":25,"adolescentepcd":2,"peti":0,"medida":0,"extremapobreza":31},{"bairro":"Jardim Wanda","macro_regiao":"Vila S\u00f4nia","cor":"darkgreen","coordenadas":"-23.617596028753173, -46.777354741957886","populacao":160,"infantojuvenil":"23,13%","primeirainfancia":7,"primeirainfanciapcd":0,"crianca6":4,"crianca6pcd":0,"crianca":15,"criancapcd":1,"adolescente":11,"adolescentepcd":2,"peti":0,"medida":1,"extremapobreza":12}];
+const variaveis = {"populacao": "Popula\u00e7\u00e3o Total", "infantojuvenil": "Popula\u00e7\u00e3o Infantojuvenil (0-17)", "primeirainfancia": "Crian\u00e7as de 0 a 3 anos", "primeirainfanciapcd": "Crian\u00e7as de 0 a 3 anos com Defici\u00eancia", "crianca6": "Crian\u00e7as de 4 a 6 anos", "crianca6pcd": "Crian\u00e7as de 4 a 6 anos com Defici\u00eancia", "crianca": "Crian\u00e7as de 7 a 11 anos", "criancapcd": "Crian\u00e7as de 7 a 11 anos com Defici\u00eancia", "adolescente": "Adolescentes", "adolescentepcd": "Adolescentes com Defici\u00eancia", "peti": "Marca\u00e7\u00e3o PETI (Trabalho Infantil)", "medida": "Medida Socioeducativa", "extremapobreza": "Em extrema pobreza"};
+document.getElementById('num-bairros').addEventListener('input', function() {
+    document.getElementById('num-bairros-value').textContent = this.value;
+});
+function selectAll(select) {
+    document.querySelectorAll('.variables-grid input[type="checkbox"]').forEach(cb => cb.checked = select);
+}
+function getSelectedVariables() {
+    return Array.from(document.querySelectorAll('.variables-grid input:checked')).map(cb => cb.value);
+}
+function updateChart() {
+    const selecionadas = getSelectedVariables();
+    const num = parseInt(document.getElementById('num-bairros').value);
+    if (selecionadas.length === 0) {
+        alert("Selecione ao menos um indicador.");
+        return;
+    }
+    const dataset = dados.map(item => {
+        const novo = { bairro: item.bairro };
+        selecionadas.forEach(v => novo[v] = item[v] || 0);
+        return novo;
+    });
+    dataset.forEach(item => {
+        let score = 0;
+        selecionadas.forEach(v => {
+            const valores = dataset.map(d => d[v]);
+            const min = Math.min(...valores);
+            const max = Math.max(...valores);
+            score += max > min ? (item[v] - min) / (max - min) : 0;
+        });
+        item.score = score;
+    });
+    const top = [...dataset].sort((a, b) => b.score - a.score).slice(0, num);
+    const traces = selecionadas.map(v => {
+        return {
+            x: top.map(i => i.bairro),
+            y: top.map(i => i[v]),
+            name: variaveis[v],
+            type: 'bar',
+            marker: {
+                color: v.includes('pcd') ? '#FFA07A' :
+                       v === 'extremapobreza' ? '#FF6B6B' :
+                       v.includes('crianca') ? '#7FB3D5' :
+                       v.includes('adolescente') ? '#86C7C1' : '#A569BD'
+            }
+        };
+    });
+    const layout = {
+        title: `Top ${num} Bairros - Indicadores Selecionados`,
+        barmode: 'group',
+        xaxis: { title: 'Bairros' },
+        yaxis: { title: 'Valores' },
+        height: 600
+    };
+    Plotly.newPlot('grafico', traces, layout);
+    updateTable(top, selecionadas);
+}
+function updateTable(data, selecionadas) {
+    let html = `<table class="table table-striped"><thead><tr><th>Bairro</th>`;
+    html += selecionadas.map(v => `<th>${variaveis[v]}</th>`).join('') + '<th>Score</th></tr></thead><tbody>';
+    data.forEach(item => {
+        html += `<tr><td><strong>${item.bairro}</strong></td>`;
+        html += selecionadas.map(v => `<td>${item[v].toLocaleString('pt-BR')}</td>`).join('');
+        html += `<td>${item.score.toFixed(2)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('tabela-dados').innerHTML = html;
+}
+document.addEventListener('DOMContentLoaded', updateChart);
+</script>
+</body>
+</html>

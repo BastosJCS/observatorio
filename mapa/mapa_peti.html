@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+     <style>
+        table {
+            width: 90%; /* Aumenta a largura da tabela */
+            border-collapse: collapse;
+            margin: 20px auto; /* Centraliza a tabela */
+            font-size: 18px;
+            text-align: left;
+        }
+        th, td {
+            border: 2px solid #000; /* Adiciona bordas mais visíveis */
+            padding: 8px;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_18711f86d5630501a2cc9db1bb1e821e {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/pa7_hm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/pa7_leaflet_hm.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css"/>
+    
+            <script>
+                var TDHeatmap = L.TimeDimension.Layer.extend({
+
+            initialize: function(data, options) {
+                var heatmapCfg = {
+                    radius: 15,
+                    blur: 0.8,
+                    maxOpacity: 1.,
+                    scaleRadius: false,
+                    useLocalExtrema: false,
+                    latField: 'lat',
+                    lngField: 'lng',
+                    valueField: 'count',
+                    defaultWeight : 1,
+                };
+                heatmapCfg = $.extend({}, heatmapCfg, options.heatmapOptions || {});
+                var layer = new HeatmapOverlay(heatmapCfg);
+                L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
+                this._currentLoadedTime = 0;
+                this._currentTimeData = {
+                    data: []
+                    };
+                this.data= data;
+                this.defaultWeight = heatmapCfg.defaultWeight || 1;
+            },
+            onAdd: function(map) {
+                L.TimeDimension.Layer.prototype.onAdd.call(this, map);
+                map.addLayer(this._baseLayer);
+                if (this._timeDimension) {
+                    this._getDataForTime(this._timeDimension.getCurrentTime());
+                }
+            },
+            _onNewTimeLoading: function(ev) {
+                this._getDataForTime(ev.time);
+                return;
+            },
+            isReady: function(time) {
+                return (this._currentLoadedTime == time);
+            },
+            _update: function() {
+                this._baseLayer.setData(this._currentTimeData);
+                return true;
+            },
+            _getDataForTime: function(time) {
+                    delete this._currentTimeData.data;
+                    this._currentTimeData.data = [];
+                    var data = this.data[time-1];
+                    for (var i = 0; i < data.length; i++) {
+                        this._currentTimeData.data.push({
+                                lat: data[i][0],
+                                lng: data[i][1],
+                                count: data[i].length>2 ? data[i][2] : this.defaultWeight
+                            });
+                        }
+                    this._currentLoadedTime = time;
+                    if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
+                        this._update();
+                    }
+                    this.fire('timeload', {
+                        time: time
+                    });
+                }
+        });
+
+        L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
+            initialize: function(index, options) {
+                var playerOptions = {
+                    buffer: 1,
+                    minBufferReady: -1
+                    };
+                options.playerOptions = $.extend({}, playerOptions, options.playerOptions || {});
+                L.Control.TimeDimension.prototype.initialize.call(this, options);
+                this.index = index;
+                },
+            _getDisplayDateFormat: function(date){
+                return this.index[date.getTime()-1];
+                }
+            });
+            </script>
+                
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_18711f86d5630501a2cc9db1bb1e821e" ></div>
+            <br><br><br>
+             <table>
+        <thead>
+            <tr>
+                <th>Bairro</th>
+                <th>2019</th>
+                <th>2020</th>
+                <th>2021</th>
+                <th>2022</th>
+                <th>2023</th>
+                <th>2024</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Jardim Suiná</td><td>1</td><td>1</td><td>3</td><td>3</td><td>0</td><td>0</td></tr>
+            <tr><td>Jardim Guaciara</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>Clementino</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>0</td></tr>
+            <tr><td>Jardim Maria Luiza</td><td>0</td><td>1</td><td>1</td><td>1</td><td>2</td><td>1</td></tr>
+            <tr><td>Jardim Triângulo</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>Jardim Iracema</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>Parque Jacarandá</td><td>0</td><td>1</td><td>3</td><td>3</td><td>5</td><td>5</td></tr>
+            <tr><td>Jardim Maria da Costa</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>Parque São Joaquim</td><td>0</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td></tr>
+            <tr><td>Jardim São Salvador</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><td>Jardim Leme</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+            <tr><td>Jardim Santa Cruz</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>Saporito</td><td>1</td><td>1</td><td>2</td><td>4</td><td>5</td><td>4</td></tr>
+            <tr><td>Parque Pinheiros</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>Jardim Scândia</td><td>0</td><td>2</td><td>1</td><td>2</td><td>1</td><td>0</td></tr>
+            <tr><td>Jardim Panorama</td><td>0</td><td>1</td><td>2</td><td>2</td><td>2</td><td>5</td></tr>
+            <tr><td>Jardim Mituzi</td><td>0</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td></tr>
+            <tr><td>Jardim São Luís</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>Jardim Trianon</td><td>0</td><td>0</td><td>4</td><td>5</td><td>6</td><td>6</td></tr>
+            <tr><td>Jardim Novo Record</td><td>0</td><td>1</td><td>9</td><td>13</td><td>13</td><td>13</td></tr>
+            <tr><td>Jardim Roberto</td><td>4</td><td>4</td><td>4</td><td>3</td><td>3</td><td>3</td></tr>
+            <tr><td>Jardim Freitas Junior</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>2</td></tr>
+            <tr><td>Jardim Record</td><td>0</td><td>0</td><td>4</td><td>4</td><td>3</td><td>9</td></tr>
+            <tr><td>Jardim Irapuã</td><td>0</td><td>0</td><td>1</td><td>3</td><td>3</td><td>1</td></tr>
+            <tr><td>Jardim Maria Rosa</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
+        </tbody>
+    </table>
+            
+            
+        
+</body>
+<script>
+    
+    
+            var map_18711f86d5630501a2cc9db1bb1e821e = L.map(
+                "map_18711f86d5630501a2cc9db1bb1e821e",
+                {
+                    center: [-23.612245, -46.777811],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_14140c2d1111149df9027b9cb07f6b3f = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_14140c2d1111149df9027b9cb07f6b3f.addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var poly_line_7dd35d0b709dabf71e2025dbc7d0885d = L.polyline(
+                [[-23.647119, -46.792445], [-23.635914, -46.821542], [-23.635993, -46.819525], [-23.633556, -46.816735], [-23.627855, -46.81107], [-23.623569, -46.811671], [-23.621957, -46.810513], [-23.618143, -46.809654], [-23.614053, -46.812701], [-23.61307, -46.81268], [-23.609158, -46.808903], [-23.608666, -46.804204], [-23.609, -46.801844], [-23.608076, -46.800642], [-23.607368, -46.799226], [-23.60611, -46.799355], [-23.604694, -46.798604], [-23.604734, -46.796544], [-23.605422, -46.795235], [-23.605048, -46.793153], [-23.606012, -46.789119], [-23.604871, -46.787531], [-23.603338, -46.783476], [-23.603967, -46.781094], [-23.60261, -46.77882], [-23.600408, -46.773477], [-23.600437, -46.770988], [-23.600133, -46.768048], [-23.598275, -46.765065], [-23.596603, -46.7616], [-23.594981, -46.760602], [-23.597399, -46.759057], [-23.599405, -46.758295], [-23.60087, -46.754487], [-23.601971, -46.751429], [-23.604252, -46.750302], [-23.60434, -46.74938], [-23.607074, -46.751525], [-23.609915, -46.752276], [-23.611625, -46.754251], [-23.61136, -46.755624], [-23.612166, -46.756386], [-23.612805, -46.758027], [-23.614987, -46.76028], [-23.617101, -46.76087], [-23.620463, -46.764078], [-23.623648, -46.767297], [-23.627294, -46.769292], [-23.628356, -46.772146], [-23.629113, -46.772822], [-23.631029, -46.776459], [-23.634086, -46.777747], [-23.635187, -46.777586], [-23.637644, -46.781384], [-23.638273, -46.784334], [-23.638784, -46.78515], [-23.639807, -46.785675], [-23.639846, -46.786566], [-23.642401, -46.78884], [-23.643099, -46.788776], [-23.643905, -46.789323], [-23.644858, -46.789516], [-23.647119, -46.792445]],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 1}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+
+            var times = [1, 2, 3, 4, 5, 6];
+
+            map_18711f86d5630501a2cc9db1bb1e821e.timeDimension = L.timeDimension(
+                {times : times, currentTime: new Date(1)}
+            );
+
+            var heat_map_ef2bc88c3df821605e033eb7176a9244Control = new L.Control.TimeDimensionCustom(['2019', '2020', '2021', '2022', '2023', '2024'], {
+                autoPlay: false,
+                backwardButton: true,
+                displayDate: true,
+                forwardButton: true,
+                limitMinimumRange: 5,
+                limitSliders: true,
+                loopButton: true,
+                maxSpeed: 10,
+                minSpeed: 0.1,
+                playButton: true,
+                playReverseButton: true,
+                position: "topright",
+                speedSlider: true,
+                speedStep: 0.1,
+                styleNS: "leaflet-control-timecontrol",
+                timeSlider: true,
+                timeSliderDragUpdate: false,
+                timeSteps: 1
+                })
+                .addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+
+                var heat_map_ef2bc88c3df821605e033eb7176a9244 = new TDHeatmap([[[-23.64005923477819, -46.792652187576294, 1], [-23.6328139396066, -46.78634804514848, 1], [-23.63671330633722, -46.79384471485866, 4]], [[-23.64005923477819, -46.792652187576294, 1], [-23.638420382398042, -46.788839796785474, 1], [-23.64311896021767, -46.800206306906084, 1], [-23.6328139396066, -46.78634804514848, 1], [-23.63470840299542, -46.80546570197341, 2], [-23.63710708792482, -46.80364656300643, 1], [-23.625933067860398, -46.79393453656471, 1], [-23.63671330633722, -46.79384471485866, 4]], [[-23.64005923477819, -46.792652187576294, 3], [-23.63547744995448, -46.78140722952486, 2], [-23.638420382398042, -46.788839796785474, 1], [-23.64311896021767, -46.800206306906084, 3], [-23.64309905276766, -46.79609377100829, 1], [-23.637822783062735, -46.79697172129039, 1], [-23.645446027683537, -46.79261426674985, 2], [-23.6328139396066, -46.78634804514848, 2], [-23.63470840299542, -46.80546570197341, 1], [-23.63710708792482, -46.80364656300643, 2], [-23.638634060178283, -46.80138640225478, 1], [-23.631881288552936, -46.7934709062319, 4], [-23.625933067860398, -46.79393453656471, 9], [-23.63671330633722, -46.79384471485866, 4], [-23.62800376237407, -46.78842664666642, 4], [-23.622068974676267, -46.780499392129066, 1]], [[-23.64005923477819, -46.792652187576294, 3], [-23.63547744995448, -46.78140722952486, 2], [-23.638420382398042, -46.788839796785474, 1], [-23.64311896021767, -46.800206306906084, 3], [-23.64309905276766, -46.79609377100829, 1], [-23.637822783062735, -46.79697172129039, 1], [-23.645446027683537, -46.79261426674985, 2], [-23.6328139396066, -46.78634804514848, 4], [-23.625343519258124, -46.783029029366666, 1], [-23.63470840299542, -46.80546570197341, 2], [-23.63710708792482, -46.80364656300643, 2], [-23.638634060178283, -46.80138640225478, 1], [-23.631881288552936, -46.7934709062319, 5], [-23.625933067860398, -46.79393453656471, 13], [-23.63671330633722, -46.79384471485866, 3], [-23.62800376237407, -46.78842664666642, 4], [-23.622068974676267, -46.780499392129066, 3]], [[-23.635784760095067, -46.790708055328295, 1], [-23.63547744995448, -46.78140722952486, 2], [-23.638420382398042, -46.788839796785474, 2], [-23.64311896021767, -46.800206306906084, 5], [-23.642753208867624, -46.80367201426731, 1], [-23.64309905276766, -46.79609377100829, 2], [-23.645446027683537, -46.79261426674985, 2], [-23.6328139396066, -46.78634804514848, 5], [-23.625343519258124, -46.783029029366666, 1], [-23.63470840299542, -46.80546570197341, 1], [-23.63710708792482, -46.80364656300643, 2], [-23.638634060178283, -46.80138640225478, 2], [-23.631881288552936, -46.7934709062319, 6], [-23.625933067860398, -46.79393453656471, 13], [-23.63671330633722, -46.79384471485866, 3], [-23.6340443177651, -46.79624846133518, 2], [-23.62800376237407, -46.78842664666642, 3], [-23.622068974676267, -46.780499392129066, 3], [-23.613672778677365, -46.76024558655676, 2]], [[-23.635784760095067, -46.790708055328295, 1], [-23.638420382398042, -46.788839796785474, 1], [-23.634544636069762, -46.7889230051044, 1], [-23.636822245286243, -46.7856642474334, 1], [-23.64311896021767, -46.800206306906084, 5], [-23.642753208867624, -46.80367201426731, 1], [-23.64309905276766, -46.79609377100829, 2], [-23.645446027683537, -46.79261426674985, 2], [-23.64137930608573, -46.80236889690831, 1], [-23.6328139396066, -46.78634804514848, 4], [-23.625343519258124, -46.783029029366666, 1], [-23.63710708792482, -46.80364656300643, 5], [-23.638634060178283, -46.80138640225478, 2], [-23.640282484232745, -46.80673631869416, 1], [-23.631881288552936, -46.7934709062319, 6], [-23.625933067860398, -46.79393453656471, 13], [-23.63671330633722, -46.79384471485866, 3], [-23.6340443177651, -46.79624846133518, 2], [-23.62800376237407, -46.78842664666642, 9], [-23.622068974676267, -46.780499392129066, 1]]],
+                {heatmapOptions: {
+                        radius: 15,
+                        blur: 0.8,
+                        minOpacity: 0.3,
+                        maxOpacity: 1,
+                        scaleRadius: false,
+                        useLocalExtrema: true,
+                        defaultWeight: 1,
+                        gradient: {0.1: 'blue', 0.25: 'green', 0.5: 'yellow', 0.75: 'orange', 1: 'red'}
+                    }
+                });
+
+        
+    
+            heat_map_ef2bc88c3df821605e033eb7176a9244.addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var marker_683846ef901e8cf0ad4b99a7efa75f0d = L.marker(
+                [-23.64005923477819, -46.792652187576294],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_1670667a47cd6112fa20459cec44f950 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim suin\u00e1\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_683846ef901e8cf0ad4b99a7efa75f0d.setIcon(div_icon_1670667a47cd6112fa20459cec44f950);
+        
+    
+            marker_683846ef901e8cf0ad4b99a7efa75f0d.bindTooltip(
+                `<div>
+                     Jardim suiná
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_54af4e5b8a11afbac6f1e8aa62a5e374 = L.marker(
+                [-23.635784760095067, -46.790708055328295],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_aaac7a8b23b64d24c795cbc482165cb2 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim guaciara\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_54af4e5b8a11afbac6f1e8aa62a5e374.setIcon(div_icon_aaac7a8b23b64d24c795cbc482165cb2);
+        
+    
+            marker_54af4e5b8a11afbac6f1e8aa62a5e374.bindTooltip(
+                `<div>
+                     Jardim guaciara
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_74cae0201a1df5315387caeb59f1be57 = L.marker(
+                [-23.63547744995448, -46.78140722952486],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_0845ba87a63196af4cacd03e273dea16 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eClementino\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_74cae0201a1df5315387caeb59f1be57.setIcon(div_icon_0845ba87a63196af4cacd03e273dea16);
+        
+    
+            marker_74cae0201a1df5315387caeb59f1be57.bindTooltip(
+                `<div>
+                     Clementino
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_1da147ba4d31435bb45e59ac17854749 = L.marker(
+                [-23.638420382398042, -46.788839796785474],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_b656c2bbde595e3daf50361ff2dbfd72 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim maria luiza\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_1da147ba4d31435bb45e59ac17854749.setIcon(div_icon_b656c2bbde595e3daf50361ff2dbfd72);
+        
+    
+            marker_1da147ba4d31435bb45e59ac17854749.bindTooltip(
+                `<div>
+                     Jardim maria luiza
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_de2076ef722080b6cf4ebedbbcb48c2e = L.marker(
+                [-23.634544636069762, -46.7889230051044],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_b46fdfb382b76c23b2f232efd68fd149 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim tri\u00e2ngulo\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_de2076ef722080b6cf4ebedbbcb48c2e.setIcon(div_icon_b46fdfb382b76c23b2f232efd68fd149);
+        
+    
+            marker_de2076ef722080b6cf4ebedbbcb48c2e.bindTooltip(
+                `<div>
+                     Jardim triângulo
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_485f9f8ccd626ef34dad609de2a20e6f = L.marker(
+                [-23.636822245286243, -46.7856642474334],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_c6108feabe8b13791dc67b197a95f000 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim iracema\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_485f9f8ccd626ef34dad609de2a20e6f.setIcon(div_icon_c6108feabe8b13791dc67b197a95f000);
+        
+    
+            marker_485f9f8ccd626ef34dad609de2a20e6f.bindTooltip(
+                `<div>
+                     Jardim iracema
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_702fb19d4234fdc87dd67332dbb62abb = L.marker(
+                [-23.64311896021767, -46.800206306906084],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_6d6aca7e1f0541b4098391b22efcc4c5 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eParque jacarand\u00e1\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_702fb19d4234fdc87dd67332dbb62abb.setIcon(div_icon_6d6aca7e1f0541b4098391b22efcc4c5);
+        
+    
+            marker_702fb19d4234fdc87dd67332dbb62abb.bindTooltip(
+                `<div>
+                     Parque jacarandá
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_eab47c4cf5171a6b84250bc4c7afaa19 = L.marker(
+                [-23.642753208867624, -46.80367201426731],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_2d786df5eddba9e3eeaf62c682fc29e3 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim maria da costa\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_eab47c4cf5171a6b84250bc4c7afaa19.setIcon(div_icon_2d786df5eddba9e3eeaf62c682fc29e3);
+        
+    
+            marker_eab47c4cf5171a6b84250bc4c7afaa19.bindTooltip(
+                `<div>
+                     Jardim maria da costa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_723ca93c5b751c5417ac42a8cc0b15f0 = L.marker(
+                [-23.64309905276766, -46.79609377100829],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_a0695a44ea18b0165c238b1b2f910a97 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eParque s\u00e3o joaquim\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_723ca93c5b751c5417ac42a8cc0b15f0.setIcon(div_icon_a0695a44ea18b0165c238b1b2f910a97);
+        
+    
+            marker_723ca93c5b751c5417ac42a8cc0b15f0.bindTooltip(
+                `<div>
+                     Parque são joaquim
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d7e10ce136aef5b62911bf7e473ebeea = L.marker(
+                [-23.637822783062735, -46.79697172129039],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_35a2e34d62462476da2dd0307598bdf0 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim s\u00e3o salvador\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_d7e10ce136aef5b62911bf7e473ebeea.setIcon(div_icon_35a2e34d62462476da2dd0307598bdf0);
+        
+    
+            marker_d7e10ce136aef5b62911bf7e473ebeea.bindTooltip(
+                `<div>
+                     Jardim são salvador
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_236846a151aa72e98defde47410915ba = L.marker(
+                [-23.645446027683537, -46.79261426674985],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_9ffa1d37401e78d518d39e5b9f8ad0ec = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim leme\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_236846a151aa72e98defde47410915ba.setIcon(div_icon_9ffa1d37401e78d518d39e5b9f8ad0ec);
+        
+    
+            marker_236846a151aa72e98defde47410915ba.bindTooltip(
+                `<div>
+                     Jardim leme
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_8d4689272fd9d597810b5c0883eb608a = L.marker(
+                [-23.64137930608573, -46.80236889690831],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_a06118a63a8b3ea8bd0ad4af65e5102b = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim santa cruz\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_8d4689272fd9d597810b5c0883eb608a.setIcon(div_icon_a06118a63a8b3ea8bd0ad4af65e5102b);
+        
+    
+            marker_8d4689272fd9d597810b5c0883eb608a.bindTooltip(
+                `<div>
+                     Jardim santa cruz
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_11faa8356b273cf5302b2302d5e6ea2d = L.marker(
+                [-23.6328139396066, -46.78634804514848],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_3587d05c43c8e3a2bc1f12200b73d1bc = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eSaporito\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_11faa8356b273cf5302b2302d5e6ea2d.setIcon(div_icon_3587d05c43c8e3a2bc1f12200b73d1bc);
+        
+    
+            marker_11faa8356b273cf5302b2302d5e6ea2d.bindTooltip(
+                `<div>
+                     Saporito
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_397c09a1795bb04385923b50d1b84ea2 = L.marker(
+                [-23.625343519258124, -46.783029029366666],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_20ef107ba5e2635f5960eed42f97845f = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eParque pinheiros\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_397c09a1795bb04385923b50d1b84ea2.setIcon(div_icon_20ef107ba5e2635f5960eed42f97845f);
+        
+    
+            marker_397c09a1795bb04385923b50d1b84ea2.bindTooltip(
+                `<div>
+                     Parque pinheiros
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_61592eb21d16abe62ccba853fa3c9025 = L.marker(
+                [-23.63470840299542, -46.80546570197341],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_1469e347ffbe098711d92a467e666c66 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim sc\u00e2ndia\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_61592eb21d16abe62ccba853fa3c9025.setIcon(div_icon_1469e347ffbe098711d92a467e666c66);
+        
+    
+            marker_61592eb21d16abe62ccba853fa3c9025.bindTooltip(
+                `<div>
+                     Jardim scândia
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_8b1afff91878f16fc6dd148219868ed5 = L.marker(
+                [-23.63710708792482, -46.80364656300643],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_ce4fac2554b7e7f8632293b9b0b576aa = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim panorama\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_8b1afff91878f16fc6dd148219868ed5.setIcon(div_icon_ce4fac2554b7e7f8632293b9b0b576aa);
+        
+    
+            marker_8b1afff91878f16fc6dd148219868ed5.bindTooltip(
+                `<div>
+                     Jardim panorama
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_ce7f4ad7e65baa4db03090af28fd3e7a = L.marker(
+                [-23.638634060178283, -46.80138640225478],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_1962dedf961486fb64b9caf55c731b47 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim mituzi\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_ce7f4ad7e65baa4db03090af28fd3e7a.setIcon(div_icon_1962dedf961486fb64b9caf55c731b47);
+        
+    
+            marker_ce7f4ad7e65baa4db03090af28fd3e7a.bindTooltip(
+                `<div>
+                     Jardim mituzi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_f1207919748b0f0d436decad5fdd80ee = L.marker(
+                [-23.640282484232745, -46.80673631869416],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_bb8d7bf138a2a56c373a899a212892b1 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim S\u00e3o Luis\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_f1207919748b0f0d436decad5fdd80ee.setIcon(div_icon_bb8d7bf138a2a56c373a899a212892b1);
+        
+    
+            marker_f1207919748b0f0d436decad5fdd80ee.bindTooltip(
+                `<div>
+                     Jardim São Luis
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_195a853c2e5accda095d0f9f91760ed4 = L.marker(
+                [-23.631881288552936, -46.7934709062319],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_8598626dd8ff38093ed2fb5312051248 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim trianon\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_195a853c2e5accda095d0f9f91760ed4.setIcon(div_icon_8598626dd8ff38093ed2fb5312051248);
+        
+    
+            marker_195a853c2e5accda095d0f9f91760ed4.bindTooltip(
+                `<div>
+                     Jardim trianon
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9556a4fcc5841e2d466c39de42e4ceaa = L.marker(
+                [-23.625933067860398, -46.79393453656471],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_0ad9af87206549409c39171660eca9f6 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim novo record\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_9556a4fcc5841e2d466c39de42e4ceaa.setIcon(div_icon_0ad9af87206549409c39171660eca9f6);
+        
+    
+            marker_9556a4fcc5841e2d466c39de42e4ceaa.bindTooltip(
+                `<div>
+                     Jardim novo record
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_8db1feb0064d7311acbdfbdc1a45d289 = L.marker(
+                [-23.63671330633722, -46.79384471485866],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_aa37732411927b1e98607bec258362e4 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim Roberto\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_8db1feb0064d7311acbdfbdc1a45d289.setIcon(div_icon_aa37732411927b1e98607bec258362e4);
+        
+    
+            marker_8db1feb0064d7311acbdfbdc1a45d289.bindTooltip(
+                `<div>
+                     Jardim Roberto
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_6412ef0955f98545938195fcdea2a185 = L.marker(
+                [-23.6340443177651, -46.79624846133518],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_106595c32d4a5542625de8f15bcae5df = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim Freitas Junior\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_6412ef0955f98545938195fcdea2a185.setIcon(div_icon_106595c32d4a5542625de8f15bcae5df);
+        
+    
+            marker_6412ef0955f98545938195fcdea2a185.bindTooltip(
+                `<div>
+                     Jardim Freitas Junior
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_e33fb87862ab6753e630ed2934995a8f = L.marker(
+                [-23.62800376237407, -46.78842664666642],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_a36fd2fbe74e36926628c56cd1f2c305 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim Record\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_e33fb87862ab6753e630ed2934995a8f.setIcon(div_icon_a36fd2fbe74e36926628c56cd1f2c305);
+        
+    
+            marker_e33fb87862ab6753e630ed2934995a8f.bindTooltip(
+                `<div>
+                     Jardim Record
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_45f76bdf14f13eed3b52cfd3fbe471e3 = L.marker(
+                [-23.622068974676267, -46.780499392129066],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_32ce55f0257b90d912a8de75e4b731f0 = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim irapua\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_45f76bdf14f13eed3b52cfd3fbe471e3.setIcon(div_icon_32ce55f0257b90d912a8de75e4b731f0);
+        
+    
+            marker_45f76bdf14f13eed3b52cfd3fbe471e3.bindTooltip(
+                `<div>
+                     Jardim irapua
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_52e32e67b9955d07caaf09e2c3d08886 = L.marker(
+                [-23.613672778677365, -46.76024558655676],
+                {
+}
+            ).addTo(map_18711f86d5630501a2cc9db1bb1e821e);
+        
+    
+            var div_icon_a6b561203649dabdce7d395230bfe28c = L.divIcon({
+  "html": "\u003cdiv style=\u0027display:none\u0027\u003eJardim maria rosa\u003c/div\u003e",
+  "className": "empty",
+});
+            marker_52e32e67b9955d07caaf09e2c3d08886.setIcon(div_icon_a6b561203649dabdce7d395230bfe28c);
+        
+    
+            marker_52e32e67b9955d07caaf09e2c3d08886.bindTooltip(
+                `<div>
+                     Jardim maria rosa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
