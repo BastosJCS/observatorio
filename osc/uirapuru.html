@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatório Vigilância</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+
+<!-- Menu de navegação - Copiar e colar em cada páginas -->
+<header>
+    <nav>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a data-link="subhome" class="nav-link">Página Inicial</a>
+            </li>
+            
+            <!-- Sobre a Vigilância -->
+            <li class="nav-item">
+                <a data-link="subsobre" class="nav-link">Sobre a Vigilância</a>
+            </li>
+            
+            <!-- Boletim Vigilância -->
+            <li class="nav-item">
+                <a data-link="subboletim" class="nav-link">Boletim Vigilância</a>
+            </li>
+
+            <!-- Mapas -->
+            <li class="nav-item">
+                <a data-link="submapas" class="nav-link">Mapas</a>
+            </li>
+
+            <!-- OSC -->
+            <li class="nav-item">
+                <a data-link="subosc" class="nav-link">OSCs</a>
+            </li>
+                            
+            <!-- Tipificações -->
+            <li class="nav-item">
+                <a data-link="subtipificacoes" class="nav-link">Tipificações</a>
+            </li>
+        </ul>
+    </nav>
+
+<!-- Menu de navegação - Copiar e colar em cada páginas -->  
+        
+  <!-- Cabeçalho - Copiar e colar em cada páginas -->  
+    
+        <div class="header-content">
+            <h1>Conheça as OSCs</h1>
+            <div class="titulo-underline"></div>
+        </div>
+
+    </header>
+  <!-- Cabeçalho - Copiar e colar em cada páginas -->  
+  
+    <main>
+        <section class="intro-section">
+            <div class="intro-content">
+                <div class="intro-image">
+                    <img src= 'uirapuru/logo.png' alt="Logo da instituição" width = 300px; height= auto>
+                </div>
+                <div class="intro-text">
+                    <h2>PROJETO UIRAPURU</h2>
+                    <table class="osc-table">
+                        <tbody>
+                            <tr>
+                                <td>Serviço:</td>
+                                <td>Capacitação Profissional para jovens e Inserção no mercado de trabalho</td>
+                            </tr>
+                            <tr>
+                                <td>Endereço:</td>
+                                <td>Rua João Pires de Camargo, 207 - Jardim Mirna</td>
+                            </tr>
+                            <tr>
+                                <td>Telefone:</td>
+                                <td>(11) 4701-5641</td>
+                            </tr>
+                            <tr>
+                                <td>E-mail:</td>
+                                <td>uirapuru@projetouirapuru.org.br</td>
+                            </tr>
+                            <tr>
+                                <td>Coordenador:</td>
+                                <td>Daniella Michel</td>
+                            </tr>
+                            <tr>
+                                <td>Inscrições:</td>
+                                <td>Pelo whatsapp (11)99426-2805</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <div class="intro-text">
+            <h2>Sobre:</h2>
+            <p>Imagine um ninho. Um lugar de acolhimento, cuidado e apoio. É isso que somos no Projeto Uirapuru. Preparamos jovens da rede pública para alcançar novos voos, sabendo que voar é um desafio que exige resiliência, comprometimento e a melhor versão de cada um. Como uma mãe que quer o melhor para seus filhos, somos exigentes e amorosos, uma vez que aqui cada jovem encontra espaço para desenvolver seu pleno potencial e se preparar para os desafios da vida e do mercado de trabalho.</p>
+        </div>
+ <!-- Início da Galeria -->
+ <section class="galeria-osc">
+    <h2>Galeria de Fotos</h2>
+    <div class="galeria-grid">
+        <!-- Item 1 -->
+        <div class="galeria-item" onclick="abrirLightbox('uirapuru/Jovens em atividade.jpeg')">
+            <img src="uirapuru/Jovens em atividade.jpeg" alt="Jovens em atividade">
+            <div class="galeria-legenda">
+                <h3>Atividade</h3>
+                <p>Jovens em atividades</p>
+            </div>
+        </div>
+        
+        <!-- Item 2 -->
+        <div class="galeria-item" onclick="abrirLightbox('uirapuru/Sala de Aula Aprendizes.jpeg')">
+            <img src="uirapuru/Sala de Aula Aprendizes.jpeg" alt="Sala de aula">
+            <div class="galeria-legenda">
+                <h3>Sala de aula</h3>
+                <p>Sala de aula dos aprendizes</p>
+            </div>
+        </div>
+                <!-- Item 3 -->
+        <div class="galeria-item" onclick="abrirLightbox('uirapuru/Sala de Aula.jpeg')">
+            <img src="uirapuru/Sala de Aula.jpeg" alt="Sala de aula">
+            <div class="galeria-legenda">
+                <h3>Sala de aula</h3>
+                <p>Sala de aula de informática</p>
+            </div>
+        </div>
+                        <!-- Item 3 -->
+        <div class="galeria-item" onclick="abrirLightbox('uirapuru/Quadra.jpeg')">
+            <img src="uirapuru/Quadra.jpeg" alt="Quadra">
+            <div class="galeria-legenda">
+                <h3>Quadra</h3>
+                <p>Quadra de futebol para uso dos alunos</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Fim da Galeria -->
+
+        <!-- Lightbox -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close" onclick="fecharLightbox()">&times;</span>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+
+
+</main>
+    
+
+
+
+<!-- Inico Rodapé - Copiar e colar em cada páginas -->
+    <footer>
+        <div class="footer-content">
+            <div class="contact-info">
+                <h3>Contato</h3>
+                <p>Email: observatoriovigilancia@ts.sp.gov.br</p>
+                <p>Telefone: (11) 4138-8040</p>
+            </div>
+            <div class="copyright">
+                <P>Secretaria de Assistência Social</P>
+                <p>Prefeitura Municipal de Taboão da Serra</p>
+                <p>&copy; 2025 Observatório Vigilância. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+<!-- Fim Rodapé - Copiar e colar em cada páginas -->
+ 
+
+<!-- Scripts  -->
+<script src="../links-config.js"></script>
+<script src="../script.js"></script>
+
+</body>
+</html>
