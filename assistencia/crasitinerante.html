@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatório Vigilância</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+
+<!-- Menu de navegação - Copiar e colar em cada páginas -->
+<header>
+    <nav>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a data-link="subhome" class="nav-link">Página Inicial</a>
+            </li>
+            
+            <!-- Sobre a Vigilância -->
+            <li class="nav-item">
+                <a data-link="subsobre" class="nav-link">Sobre a Vigilância</a>
+            </li>
+
+            <!-- Assistência Social -->
+             <li class="nav-item">
+                <a data-link="subassistencia" class="nav-link">Assistência Social</a>
+             </li>
+            
+            <!-- Boletim Vigilância -->
+            <li class="nav-item">
+                <a data-link="subboletim" class="nav-link">Boletim Vigilância</a>
+            </li>
+
+            <!-- Mapas -->
+            <li class="nav-item">
+                <a data-link="submapas" class="nav-link">Mapas</a>
+            </li>
+
+            <!-- OSC -->
+            <li class="nav-item">
+                <a data-link="subosc" class="nav-link">OSCs</a>
+            </li>
+                            
+            <!-- Tipificações -->
+            <li class="nav-item">
+                <a data-link="subtipificacoes" class="nav-link">Tipificações</a>
+            </li>
+        </ul>
+    </nav>
+
+<!-- Menu de navegação - Copiar e colar em cada páginas -->  
+        
+  <!-- Cabeçalho - Copiar e colar em cada páginas -->  
+    
+        <div class="header-content">
+            <h1>CRAS ITINERANTE</h1>
+            <div class="titulo-underline"></div>
+        </div>
+
+    </header>
+  <!-- Cabeçalho - Copiar e colar em cada páginas -->  
+  
+    <main>
+        <section class="intro-section">
+                <div class="intro-text">
+                    <h2>Sobre:</h2>
+                    <p>Com o objetivo de ampliar o acesso à proteção socioassistencial e aproximar as equipes de referência do município das famílias, a Prefeitura Municipal, por meio da Secretaria de Assistência Social, realiza o CRAS Itinerante</p>
+                    <br><p>Essa ação, que ocorre três dias por semana em locais previamente divulgados, busca atender as famílias em situação de vulnerabilidade social. Além de facilitar o acesso aos serviços, programas e projetos, o CRAS Itinerante tem como finalidade atualizar e/ou realizar o Cadastro Único, garantindo a inclusão em diversos programas do Governo Federal, como Bolsa Família.</p>
+                    <br><p>O CRAS Itinerante demonstra compromisso da gestão em alcançar a população em vulnerabilidade, levando todos os serviços que vão além da simples inserção dos benefícios sociais. O intuito é inserir as famílias que ainda não estão cadastradas no CadÚnico, bem como promover o acesso à renda daqueles que, mesmo atendendo aos critérios, não contam com essa proteção, além de atuar de forma preventiva no território</p>
+                </div>
+        </section>
+      
+        <section class="intro-section">
+                <div class="intro-text">
+                    <h2>Calendário de ação - Mês de <b>junho</b> de 2025</h2>
+                 </div>
+        </section>
+
+ <!-- Início da Galeria -->
+ <section class="galeria-osc">
+    <h2>Galeria de Fotos</h2>
+    <div class="galeria-grid">
+        <!-- Item 1 -->
+        <div class="galeria-item" onclick="abrirLightbox('fotos/itinerante1.png')">
+            <img src="fotos/itinerante1.png" alt="CRAS Itinerante 01 - Ação no território">
+            <div class="galeria-legenda">
+                <h3>CRAS Itinerante</h3>
+                <p>CRAS Itinerante 01 - Ação no território</p>
+            </div>
+        </div>
+        
+        <!-- Item 2 -->
+        <div class="galeria-item" onclick="abrirLightbox('fotos/itinerante2.png')">
+            <img src="fotos/itinerante2.png" alt="CRAS Itinerante 02 - Ação no território">
+            <div class="galeria-legenda">
+                <h3>CRAS Itinerante</h3>
+                <p>CRAS Itinerante 02 - Ação no território</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Fim da Galeria -->
+
+        <!-- Lightbox -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close" onclick="fecharLightbox()">&times;</span>
+            <img id="lightbox-img" src="" alt="">
+        </div>
+
+
+</main>
+    
+
+
+
+<!-- Inico Rodapé - Copiar e colar em cada páginas -->
+    <footer>
+        <div class="footer-content">
+            <div class="contact-info">
+                <h3>Contato</h3>
+                <p>Email: observatoriovigilancia@ts.sp.gov.br</p>
+                <p>Telefone: (11) 4138-8040</p>
+            </div>
+            <div class="copyright">
+                <P>Secretaria de Assistência Social</P>
+                <p>Prefeitura Municipal de Taboão da Serra</p>
+                <p>&copy; 2025 Observatório Vigilância. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+<!-- Fim Rodapé - Copiar e colar em cada páginas -->
+ 
+
+<!-- Scripts  -->
+<script src="../links-config.js"></script>
+<script src="../script.js"></script>
+
+</body>
+</html>
