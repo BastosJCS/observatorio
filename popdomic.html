@@ -255,5 +255,38 @@
             updatePage();
         };
     </script>
+    <script>
+    // Função para pegar os parâmetros da URL
+    function getUrlParameter(name) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+        const results = regex.exec(window.location.href);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Carregar os dados quando a página abrir
+    window.onload = function() {
+        const encodedData = getUrlParameter('data');
+        if (encodedData) {
+            try {
+                // Decodificar Base64 e parsear JSON
+                const jsonData = atob(encodedData);
+                const data = JSON.parse(jsonData);
+                
+                // Preencher os campos no HTML
+                document.getElementById('bairro').textContent = data.bairro || '';
+                document.getElementById('macro_regiao').textContent = data.macro_regiao || '';
+                document.getElementById('total').textContent = data.total || '';
+                document.getElementById('particular_permanente_1').textContent = data.particular_permanente_1 || '';
+                // ... (preencher todos os outros campos)
+                
+            } catch (e) {
+                console.error("Erro ao decodificar dados:", e);
+            }
+        }
+    };
+</script>
 </body>
 </html>
