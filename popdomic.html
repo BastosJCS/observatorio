@@ -255,38 +255,28 @@
             updatePage();
         };
     </script>
-    <script>
-    // Função para pegar os parâmetros da URL
-    function getUrlParameter(name) {
-        name = name.replace(/[\[\]]/g, '\\$&');
-        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
-        const results = regex.exec(window.location.href);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
+
+    
+<script>
+    function loadData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Decodifica Part1 e Part2
+        const part1 = JSON.parse(atob(urlParams.get('part1')));
+        const part2 = JSON.parse(atob(urlParams.get('part2')));
+        
+        // Combina os dados
+        const data = { ...part1, ...part2 };
+        
+        // Preenche os campos (exemplo)
+        document.getElementById('bairro').textContent = data.bairro || '';
+        document.getElementById('particular_permanente_1').textContent = data.particular_permanente_1 || '';
+        document.getElementById('particular_improvisado_1').textContent = data.particular_improvisado_1 || '';
+        // ... (todos os campos)
     }
 
-    // Carregar os dados quando a página abrir
-    window.onload = function() {
-        const encodedData = getUrlParameter('data');
-        if (encodedData) {
-            try {
-                // Decodificar Base64 e parsear JSON
-                const jsonData = atob(encodedData);
-                const data = JSON.parse(jsonData);
-                
-                // Preencher os campos no HTML
-                document.getElementById('bairro').textContent = data.bairro || '';
-                document.getElementById('macro_regiao').textContent = data.macro_regiao || '';
-                document.getElementById('total').textContent = data.total || '';
-                document.getElementById('particular_permanente_1').textContent = data.particular_permanente_1 || '';
-                // ... (preencher todos os outros campos)
-                
-            } catch (e) {
-                console.error("Erro ao decodificar dados:", e);
-            }
-        }
-    };
+    window.onload = loadData;
 </script>
 </body>
 </html>
