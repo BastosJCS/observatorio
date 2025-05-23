@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            width: 500px;
+            height: 400px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .page {
+            display: none;
+            width: 100%;
+            height: 380px;
+            overflow-y: auto;
+        }
+        .page.active {
+            display: block;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            position: fixed;
+            bottom: 10px;
+            width: 480px;
+            background: white;
+            padding: 5px 0;
+        }
+        .nav-button {
+            padding: 5px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #45a049;
+        }
+        .nav-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .page-indicator {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Página 1 -->
+    <div class="page active" id="page1">
+        <h3>Informações Gerais</h3>
+        <table>
+            <tr>
+                <th>Informações sobre o bairro</th>
+                <th id="bairro"></th>
+            </tr>
+            <tr>
+                <td>Macro Região:</td>
+                <td id="macro_regiao"></td>
+            </tr>
+            <tr>
+                <td>Total de domicílios:</td>
+                <td id="total"></td>
+            </tr>         
+        </table>
+
+        <h3>Espécie do domicílio</h3>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Quantidade</th>
+            </tr>
+            <tr>
+                <td>Particular Permanente</td>
+                <td id="particular_permanente_1"></td>
+            </tr>
+            <tr>
+                <td>Particular Improvisado</td>
+                <td id="particular_improvisado_1"></td>
+            </tr>
+            <tr>
+                <td>Coletivo</td>
+                <td id="coletivo_1"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Página 2 -->
+    <div class="page" id="page2">
+        <h3>Material do piso</h3>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Quantidade</th>
+            </tr>
+            <tr>
+                <td>Terra</td>
+                <td id="terra_3"></td>
+            </tr>
+            <tr>
+                <td>Cimento</td>
+                <td id="cimento_3"></td>
+            </tr>
+            <tr>
+                <td>Madeira Aproveitada</td>
+                <td id="madeira_aproveitada_3"></td>
+            </tr>
+            <tr>
+                <td>Madeira Aparelhada</td>
+                <td id="madeira_aparelhada_3"></td>
+            </tr>
+            <tr>
+                <td>Cerâmica, Lajota ou Pedra</td>
+                <td id="ceramica_lajota_pedra_3"></td>
+            </tr>
+            <tr>
+                <td>Carpete</td>
+                <td id="carpete_3"></td>
+            </tr>
+            <tr>
+                <td>Outro Material</td>
+                <td id="outro_material_3"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Página 3 -->
+    <div class="page" id="page3">
+        <h3>Material da parede</h3>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Quantidade</th>
+            </tr>
+            <tr>
+                <td>Alvenaria com Revestimento</td>
+                <td id="alvenaria_tijolo_com_revesimento_3"></td>
+            </tr>
+            <tr>
+                <td>Alvenaria sem Revestimento</td>
+                <td id="alvenaria_tijolo_sem_revesimento_3"></td>
+            </tr>
+            <tr>
+                <td>Madeira Aparelhada</td>
+                <td id="madeira_aparelhada_parede_3"></td>
+            </tr>
+            <tr>
+                <td>Taipa Revestida</td>
+                <td id="taipa_revestida_3"></td>
+            </tr>
+            <tr>
+                <td>Taipa não Revestida</td>
+                <td id="taipa_nao_revestida_3"></td>
+            </tr>
+            <tr>
+                <td>Madeira Aproveitada</td>
+                <td id="madeira_aproveitada_parede_3"></td>
+            </tr>
+            <tr>
+                <td>Palha</td>
+                <td id="palha_3"></td>
+            </tr>
+            <tr>
+                <td>Outro Material</td>
+                <td id="outro_material_parede_3"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Navegação -->
+    <div class="nav-buttons">
+        <button class="nav-button" onclick="prevPage()">‹ Anterior</button>
+        <span class="page-indicator" id="pageIndicator">Página 1 de 3</span>
+        <button class="nav-button" onclick="nextPage()">Próximo ›</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 3;
+        
+        // Função para carregar os dados dos parâmetros da URL
+        function loadDataFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('bairro').textContent = urlParams.get('bairro') || '';
+            document.getElementById('macro_regiao').textContent = urlParams.get('macro_regiao') || '';
+            // Carregue todos os outros parâmetros da mesma forma...
+            // Exemplo para outros campos:
+            document.getElementById('total').textContent = urlParams.get('total') || '';
+            document.getElementById('particular_permanente_1').textContent = urlParams.get('particular_permanente_1') || '';
+            // Continue para todos os outros campos...
+        }
+        
+        function updatePage() {
+            // Esconde todas as páginas
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Mostra apenas a página atual
+            document.getElementById('page' + currentPage).classList.add('active');
+            
+            // Atualiza o indicador de página
+            document.getElementById('pageIndicator').textContent = 
+                'Página ' + currentPage + ' de ' + totalPages;
+            
+            // Desabilita botões quando necessário
+            document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 1;
+            document.querySelector('button[onclick="nextPage()"]').disabled = currentPage === totalPages;
+        }
+        
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePage();
+            }
+        }
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+        
+        // Quando a página carregar
+        window.onload = function() {
+            loadDataFromURL();
+            updatePage();
+        };
+    </script>
+</body>
+</html>
