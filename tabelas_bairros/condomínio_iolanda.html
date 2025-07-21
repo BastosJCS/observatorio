@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados para Educação - Condomínio Iolanda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .page {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .active {
+            display: block;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4個px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .page-indicator {
+            text-align: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin: 10px 0;
+        }
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ecf0f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .data-highlight {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dados para Educação Bairro Condomínio Iolanda</h1>
+    <h2>Macroregião: Três Marias</h2>
+
+    <div class="tab-container">
+        <div class="tab active" onclick="showPage(1)">Geral</div>
+        <div class="tab" onclick="showPage(2)">Total Grau de Instrução</div>
+        <div class="tab" onclick="showPage(3)">PCD e Escolarização</div>
+        <div class="tab" onclick="showPage(4)">Gênero e Escolarização</div>
+        <div class="tab" onclick="showPage(5)">Raça/Cor e Escolarização</div>
+    </div>
+
+    <!-- Página 1: Geral -->
+    <div id="page1" class="page active">
+        <h2>Dados Gerais</h2>
+        
+    <table>
+        <thead>
+            <tr>
+                <th>Indicador</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Total de Pessoas</td><td class="data-highlight">9</td></tr>
+            <tr><td>Total PCD</td><td class="data-highlight">5</td></tr>
+            <tr><td>Total Analfabetizado</td><td class="data-highlight">0</td></tr>
+            <tr><td>Masculino</td><td class="data-highlight">4</td></tr>
+            <tr><td>Feminino</td><td class="data-highlight">5</td></tr>
+            <tr><td>Trans</td><td class="data-highlight">0</td></tr>
+            <tr><td>Travesti</td><td class="data-highlight">0</td></tr>
+            <tr><td>Branco</td><td class="data-highlight">7</td></tr>
+            <tr><td>Preto</td><td class="data-highlight">1</td></tr>
+            <tr><td>Pardo</td><td class="data-highlight">1</td></tr>
+            <tr><td>Amarelo</td><td class="data-highlight">0</td></tr>
+            <tr><td>Indígena</td><td class="data-highlight">0</td></tr>
+        </tbody>
+    </table>
+        <div class="page-indicator">Página 1 de 5 - Dados Gerais</div>
+    </div>
+
+    <!-- Página 2: Total Grau de Instrução -->
+    <div id="page2" class="page">
+        <h2>Total por Grau de Instrução</h2>
+        
+    <table>
+        <thead>
+            <tr>
+                <th>Grau de Instrução</th>
+                <th>Quantidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Sem Instrução</td><td class="data-highlight">0</td></tr>
+            <tr><td>Fundamental Incompleto</td><td class="data-highlight">1</td></tr>
+            <tr><td>Fundamental Completo</td><td class="data-highlight">0</td></tr>
+            <tr><td>Médio Incompleto</td><td class="data-highlight">0</td></tr>
+            <tr><td>Médio Completo</td><td class="data-highlight">2</td></tr>
+            <tr><td>Superior Completo</td><td class="data-highlight">6</td></tr>
+            <tr><td>Outro</td><td class="data-highlight">0</td></tr>
+        </tbody>
+    </table>
+        <div class="page-indicator">Página 2 de 5 - Total por Grau de Instrução</div>
+    </div>
+
+    <!-- Página 3: PCD e Escolarização -->
+    <div id="page3" class="page">
+        <h2>PCD e Alfabetização</h2>
+        
+    <table>
+        <thead>
+            <tr>
+                <th>Tipo de Deficiência</th>
+                <th>Sem Instrução</th>
+                <th>Fundamental Incompleto</th>
+                <th>Fundamental Completo</th>
+                <th>Médio Incompleto</th>
+                <th>Médio Completo</th>
+                <th>Superior Completo</th>
+                <th>Outro</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Cegueira</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Baixa Visão</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Surdez Profunda</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Surdez Leve</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Deficiência Física</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>3</td><td>0</td></tr>
+        </tbody>
+    </table>
+        <div class="page-indicator">Página 3 de 5 - PCD e Alfabetização</div>
+    </div>
+
+    <!-- Página 4: Gênero e Escolarização -->
+    <div id="page4" class="page">
+        <h2>Gênero e Alfabetização</h2>
+        
+    <table>
+        <thead>
+            <tr>
+                <th>Gênero</th>
+                <th>Sem Instrução</th>
+                <th>Fundamental Incompleto</th>
+                <th>Fundamental Completo</th>
+                <th>Médio Incompleto</th>
+                <th>Médio Completo</th>
+                <th>Superior Completo</th>
+                <th>Outro</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Homem</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>2</td><td>0</td></tr>
+            <tr><td>Mulher</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>4</td><td>0</td></tr>
+            <tr><td>Trans</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Travesti</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+    </table>
+        <div class="page-indicator">Página 4 de 5 - Gênero e Alfabetização</div>
+    </div>
+
+    <!-- Página 5: Raça/Cor e Escolarização -->
+    <div id="page5" class="page">
+        <h2>Raça/Cor e Alfabetização</h2>
+        
+    <table>
+        <thead>
+            <tr>
+                <th>Raça/Cor</th>
+                <th>Sem Instrução</th>
+                <th>Fundamental Incompleto</th>
+                <th>Fundamental Completo</th>
+                <th>Médio Incompleto</th>
+                <th>Médio Completo</th>
+                <th>Superior Completo</th>
+                <th>Outro</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Branca</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>6</td><td>0</td></tr>
+            <tr><td>Preta</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><td>Parda</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><td>Amarela</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>Indígena</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+    </table>
+        <div class="page-indicator">Página 5 de 5 - Raça/Cor e Alfabetização</div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="prevPage()" disabled>&lt; Anterior</button>
+        <button id="nextBtn" onclick="nextPage()">Próxima &gt;</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 5;
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+            document.querySelectorAll('.tab').forEach((tab, index) => {
+                if (index + 1 === currentPage) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`page${currentPage}`).classList.add('active');
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateNavigation();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateNavigation();
+            }
+        }
+
+        function showPage(pageNumber) {
+            currentPage = pageNumber;
+            updateNavigation();
+        }
+
+        updateNavigation();
+    </script>
+</body>
+</html>
