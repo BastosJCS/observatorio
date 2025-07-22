@@ -761,18 +761,18 @@ function updateChart() {
     dataset.forEach(item => {
         let totalPessoas = 0;
         let categoriasComPessoas = 0;
-
+        
         selecionadas.forEach(v => {
             const valor = Number(item[v]) || 0;
             totalPessoas += valor;
             if (valor > 0) categoriasComPessoas++;
         });
-
+        
         // Fator de diversidade (0 a 1)
-        const fatorDiversidade = selecionadas.length > 0
-            ? categoriasComPessoas / selecionadas.length
+        const fatorDiversidade = selecionadas.length > 0 
+            ? categoriasComPessoas / selecionadas.length 
             : 0;
-
+        
         // Score final: total de pessoas × (1 + fator de diversidade)
         item.score = totalPessoas * (1 + fatorDiversidade);
     });
@@ -844,6 +844,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // document.getElementById('categoria').value = '';
     // updateVariableSelection();
 });
+
+
+
+function updateTable(dados, variaveisSelecionadas) {
+    const tabelaContainer = document.getElementById("tabela-dados");
+
+    if (!tabelaContainer) return;
+
+    let html = "<table class='table table-bordered table-striped'><thead><tr><th>Bairro</th><th>Macroregião</th>";
+
+    // Cabeçalhos
+    variaveisSelecionadas.forEach(v => {
+        let nomeVar = v;
+        for (const cat in variaveis) {
+            if (variaveis[cat][v]) {
+                nomeVar = variaveis[cat][v];
+                break;
+            }
+        }
+        html += `<th>${nomeVar}</th>`;
+    });
+
+    // Adicionar cabeçalho para o score
+    html += "<th>Score</th></tr></thead><tbody>";
+
+    // Linhas de dados
+    dados.forEach(item => {
+        html += `<tr><td>${item.bairro}</td><td>${item.macroregiao || ''}</td>`;
+        variaveisSelecionadas.forEach(v => {
+            html += `<td>${item[v]}</td>`;
+        });
+        // Adicionar célula para o score
+        html += `<td>${item.score?.toFixed(2) || '0.00'}</td></tr>`;
+    });
+
+    html += "</tbody></table>";
+
+    tabelaContainer.innerHTML = html;
+}
+
 </script>
 </body>
 </html>
